@@ -7,12 +7,14 @@
         </div>
 
         <div class="md-toolbar-section-end">
+          {{ userProfile.name }}
           <md-button
             class="md-icon-button"
             @click="logoutUser"
             :disabled="!currentUser"
           >
             <md-icon>perm_identity</md-icon>
+            <md-tooltip md-direction="bottom">Logout</md-tooltip>
           </md-button>
         </div>
       </div>
@@ -59,7 +61,7 @@ import { fb } from "./config/firebaseConfig";
 export default {
   name: "App",
   computed: {
-    ...mapState(["currentUser"])
+    ...mapState(["currentUser", "userProfile"])
   },
   methods: {
     logoutUser() {

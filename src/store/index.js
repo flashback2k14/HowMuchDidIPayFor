@@ -15,14 +15,15 @@ fb.auth.onAuthStateChanged(user => {
 export const store = new Vuex.Store({
   state: {
     currentUser: null,
+    currentSettings: null,
     userProfile: {},
-    userSettings: {}
+    userSettings: []
   },
   actions: {
     clearState({ commit }) {
       commit("setCurrentUser", null);
       commit("setUserProfile", {});
-      commit("setUserSettings", {});
+      commit("setUserSettings", []);
     },
     fetchUserProfile({ commit, state }) {
       fb.users
@@ -59,10 +60,11 @@ export const store = new Vuex.Store({
       state.userProfile = val;
     },
     setUserSettings(state, val) {
-      const settings = val
-        .map(item => item.data())
-        .filter(item => item.expirationDate.seconds * 1000 > Date.now());
-      state.userSettings = settings[0];
+      const settings = val.map(item => item.data());
+      state.userSettings = settings;
+      state.currentSettings = settings.filter(
+        item => item.expirationDate.seconds * 1000 > Date.now()
+      )[0];
     }
   }
 });
