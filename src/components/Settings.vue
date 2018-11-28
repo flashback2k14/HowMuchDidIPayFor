@@ -18,9 +18,25 @@
         <md-table-cell md-label="Expiration Date">{{
           item.expirationDate | formattedDate
         }}</md-table-cell>
+        <md-table-cell md-label="Edit">
+          <md-button
+            class="md-icon-button md-dense"
+            @click="showEditDialog(item);"
+          >
+            <md-icon>edit</md-icon>
+          </md-button>
+        </md-table-cell>
+        <md-table-cell md-label="Delete">
+          <md-button
+            class="md-icon-button md-dense"
+            @click="showDeleteDialog(item);"
+          >
+            <md-icon>delete</md-icon>
+          </md-button>
+        </md-table-cell>
       </md-table-row>
     </md-table>
-    <!-- dialog -->
+    <!-- dialog:create -->
     <md-dialog :md-active.sync="showDialog">
       <md-dialog-title>Create a new Setting</md-dialog-title>
       <form novalidate @submit.prevent="createSetting">
@@ -50,7 +66,7 @@
             <span class="md-suffix">Euro</span>
           </md-field>
           <md-field>
-            <label>Preis für Frühstück</label>
+            <label>Preis für Vesper</label>
             <md-input
               type="number"
               name="afternoonSnackPrize"
@@ -73,6 +89,68 @@
         </md-dialog-actions>
       </form>
     </md-dialog>
+    <!-- dialog:edit -->
+    <md-dialog :md-active.sync="showDialogEdit">
+      <md-dialog-title>Edit a Setting</md-dialog-title>
+      <form novalidate @submit.prevent="editSetting">
+        <md-dialog-content>
+          <md-field>
+            <label>Preis für Frühstück</label>
+            <md-input
+              type="number"
+              name="breakfastPrize"
+              id="breakfastPrize"
+              v-model.trim="form.breakfastPrize"
+              min="0.05"
+              step="0.10"
+            ></md-input>
+            <span class="md-suffix">Euro</span>
+          </md-field>
+          <md-field>
+            <label>Preis für Mittagessen</label>
+            <md-input
+              type="number"
+              name="lunchPrize"
+              id="lunchPrize"
+              v-model.trim="form.lunchPrize"
+              min="0.05"
+              step="0.10"
+            ></md-input>
+            <span class="md-suffix">Euro</span>
+          </md-field>
+          <md-field>
+            <label>Preis für Vesper</label>
+            <md-input
+              type="number"
+              name="afternoonSnackPrize"
+              id="afternoonSnackPrize"
+              v-model.trim="form.afternoonSnackPrize"
+              min="0.05"
+              step="0.10"
+            ></md-input>
+            <span class="md-suffix">Euro</span>
+          </md-field>
+          <md-datepicker v-model.trim="form.expirationDate">
+            <label>Gültig bis</label>
+          </md-datepicker>
+        </md-dialog-content>
+        <md-dialog-actions>
+          <md-button class="md-primary" @click="closeDialogEdit();"
+            >Close</md-button
+          >
+          <md-button class="md-primary" type="submit">Edit</md-button>
+        </md-dialog-actions>
+      </form>
+    </md-dialog>
+    <!-- dialog:delete -->
+    <md-dialog-confirm
+      :md-active.sync="showDialogDelete"
+      md-title="Wollen Sie wirklich diesen Eintrag löschen?"
+      md-confirm-text="Ja"
+      md-cancel-text="Nein"
+      @md-confirm="onDeleteConfirm"
+      @md-cancel="onDeleteCancel"
+    />
     <!-- fab -->
     <div class="container-button">
       <md-button class="md-fab" @click="showDialog = !showDialog;">
@@ -101,6 +179,10 @@ export default {
   data() {
     return {
       showDialog: false,
+      showDialogEdit: false,
+      showDialogDelete: false,
+      editableSetting__: null,
+      deletedableSetting__: null,
       form: {
         breakfastPrize: null,
         lunchPrize: null,
@@ -116,19 +198,26 @@ export default {
     formattedDate: formattedDateFilter
   },
   methods: {
-    closeDialog() {
+    clearForm() {
       this.form.breakfastPrize = null;
       this.form.lunchPrize = null;
       this.form.afternoonSnackPrize = null;
       this.form.expirationDate = null;
+    },
+    closeDialog() {
+      this.clearForm();
       this.showDialog = !this.showDialog;
+    },
+    closeDialogEdit() {
+      this.clearForm();
+      this.showDialogEdit = !this.showDialogEdit;
     },
     createSetting() {
       fb.settings
         .add({
-          breakfastPrize: this.form.breakfastPrize,
-          lunchPrize: this.form.lunchPrize,
-          afternoonSnackPrize: this.form.afternoonSnackPrize,
+          breakfastPrize: parseFloat(this.form.breakfastPrize),
+          lunchPrize: parseFloat(this.form.lunchPrize),
+          afternoonSnackPrize: parseFloat(this.form.afternoonSnackPrize),
           expirationDate: this.form.expirationDate,
           userId: this.currentUser.uid
         })
@@ -139,6 +228,51 @@ export default {
         .catch(error => {
           console.log(error);
         });
+    },
+    editSetting() {
+      fb.settings
+        .doc(this.editableSetting__.id)
+        .update({
+          breakfastPrize: parseFloat(this.form.breakfastPrize),
+          lunchPrize: parseFloat(this.form.lunchPrize),
+          afternoonSnackPrize: parseFloat(this.form.afternoonSnackPrize),
+          expirationDate: this.form.expirationDate
+        })
+        .then(() => {
+          this.$store.dispatch("fetchUserSettings");
+          this.editableSetting__ = null;
+          this.closeDialogEdit();
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    },
+    showEditDialog(item) {
+      this.editableSetting__ = item;
+      this.form.breakfastPrize = item.breakfastPrize;
+      this.form.lunchPrize = item.lunchPrize;
+      this.form.afternoonSnackPrize = item.afternoonSnackPrize;
+      this.form.expirationDate = new Date(item.expirationDate.seconds * 1000);
+      this.showDialogEdit = !this.showDialogEdit;
+    },
+    showDeleteDialog(item) {
+      this.deletedableSetting__ = item;
+      this.showDialogDelete = !this.showDialogDelete;
+    },
+    onDeleteConfirm() {
+      fb.settings
+        .doc(this.deletedableSetting__.id)
+        .delete()
+        .then(() => {
+          this.$store.dispatch("fetchUserSettings");
+          this.deletedableSetting__ = null;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    onDeleteCancel() {
+      this.deletedableSetting__ = null;
     }
   }
 };
