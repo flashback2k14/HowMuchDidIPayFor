@@ -1,41 +1,46 @@
 <template>
-  <div>
+  <div
+    class="md-layout setting-container_height"
+    :class="`md-alignment-top-center`"
+  >
     <!-- data table -->
-    <md-table :value="userSettings" md-card>
-      <md-table-row slot="md-table-row" slot-scope="{ item }">
-        <md-table-cell md-label="Position" md-numeric>{{
-          item.pos
-        }}</md-table-cell>
-        <md-table-cell md-label="Breakfast Prize" md-numeric>{{
-          item.breakfastPrize
-        }}</md-table-cell>
-        <md-table-cell md-label="Lunch Prize" md-numeric>{{
-          item.lunchPrize
-        }}</md-table-cell>
-        <md-table-cell md-label="Afternoon Snack Prize" md-numeric>{{
-          item.afternoonSnackPrize
-        }}</md-table-cell>
-        <md-table-cell md-label="Expiration Date">{{
-          item.expirationDate | formattedDate
-        }}</md-table-cell>
-        <md-table-cell md-label="Edit">
-          <md-button
-            class="md-icon-button md-dense"
-            @click="showEditDialog(item);"
-          >
-            <md-icon>edit</md-icon>
-          </md-button>
-        </md-table-cell>
-        <md-table-cell md-label="Delete">
-          <md-button
-            class="md-icon-button md-dense"
-            @click="showDeleteDialog(item);"
-          >
-            <md-icon>delete</md-icon>
-          </md-button>
-        </md-table-cell>
-      </md-table-row>
-    </md-table>
+    <div class="md-layout-item md-size-95">
+      <md-table :value="userSettings" md-card>
+        <md-table-row slot="md-table-row" slot-scope="{ item }">
+          <md-table-cell md-label="Position" md-numeric>{{
+            item.pos
+          }}</md-table-cell>
+          <md-table-cell md-label="Breakfast Prize" md-numeric>{{
+            item.breakfastPrize
+          }}</md-table-cell>
+          <md-table-cell md-label="Lunch Prize" md-numeric>{{
+            item.lunchPrize
+          }}</md-table-cell>
+          <md-table-cell md-label="Afternoon Snack Prize" md-numeric>{{
+            item.afternoonSnackPrize
+          }}</md-table-cell>
+          <md-table-cell md-label="Expiration Date">{{
+            item.expirationDate | formattedDate
+          }}</md-table-cell>
+          <md-table-cell md-label="Edit">
+            <md-button
+              class="md-icon-button md-dense"
+              @click="showEditDialog(item);"
+            >
+              <md-icon>edit</md-icon>
+            </md-button>
+          </md-table-cell>
+          <md-table-cell md-label="Delete">
+            <md-button
+              class="md-icon-button md-dense"
+              @click="showDeleteDialog(item);"
+            >
+              <md-icon>delete</md-icon>
+            </md-button>
+          </md-table-cell>
+        </md-table-row>
+      </md-table>
+    </div>
     <!-- dialog:create -->
     <md-dialog :md-active.sync="showDialog">
       <md-dialog-title>Create a new Setting</md-dialog-title>
@@ -279,6 +284,11 @@ export default {
 </script>
 
 <style>
+.setting-container_height {
+  height: inherit;
+  margin-top: 12px;
+}
+
 .container-button {
   position: absolute;
   bottom: 12px;
