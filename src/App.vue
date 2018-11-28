@@ -1,0 +1,92 @@
+<template>
+  <md-app md-waterfall md-mode="fixed-last">
+    <md-app-toolbar class="md-large md-dense md-primary">
+      <div class="md-toolbar-row">
+        <div class="md-toolbar-section-start">
+          <span class="md-title">HowMuchDidIPayFor</span>
+        </div>
+
+        <div class="md-toolbar-section-end">
+          <md-button
+            class="md-icon-button"
+            @click="logoutUser"
+            :disabled="!currentUser"
+          >
+            <md-icon>perm_identity</md-icon>
+          </md-button>
+        </div>
+      </div>
+
+      <div class="md-toolbar-row">
+        <md-tabs
+          class="md-primary"
+          md-sync-route
+          :md-active-tab="setActiveTab()"
+        >
+          <md-tab
+            id="tabDashboard"
+            md-label="Dashboard"
+            to="/dashboard"
+            :md-disabled="!currentUser"
+          >
+          </md-tab>
+          <md-tab
+            id="tabBillings"
+            md-label="Billings"
+            to="/billings"
+            :md-disabled="!currentUser"
+          >
+          </md-tab>
+          <md-tab
+            id="tabSettings"
+            md-label="Settings"
+            to="/settings"
+            :md-disabled="!currentUser"
+          >
+          </md-tab>
+        </md-tabs>
+      </div>
+    </md-app-toolbar>
+
+    <md-app-content> <router-view /> </md-app-content>
+  </md-app>
+</template>
+
+<script>
+import { mapState } from "vuex";
+import { fb } from "./config/firebaseConfig";
+
+export default {
+  name: "App",
+  computed: {
+    ...mapState(["currentUser"])
+  },
+  methods: {
+    logoutUser() {
+      fb.auth
+        .signOut()
+        .then(() => {
+          this.$store.dispatch("clearState");
+          this.$router.push("/login");
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    },
+    setActiveTab() {
+      return this.currentUser === null ? -1 : "tabDashboard";
+    }
+  }
+};
+</script>
+
+<style>
+.md-app {
+  height: 100vh;
+}
+</style>
+
+//
+https://www.google.de/search?q=firebase+vuejs&oq=firebase+vue&aqs=chrome.1.69i57j0l3.8564j1j7&client=ms-unknown&sourceid=chrome-mobile&ie=UTF-8#scso=_j_T6W6miBsmPgAaHop_QDQ18:999
+// https://savvyapps.com/blog/definitive-guide-building-web-app-vuejs-firebase
+// https://github.com/savvyapps/SAVuegram/blob/master/src/App.vue
