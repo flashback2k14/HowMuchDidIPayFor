@@ -60,7 +60,14 @@ export const store = new Vuex.Store({
       state.userProfile = val;
     },
     setUserSettings(state, val) {
-      const settings = val.map(item => item.data());
+      const settings = val
+        .map((item, index) => {
+          let setting = item.data();
+          setting.id = item.id;
+          setting.pos = ++index;
+          return setting;
+        })
+        .sort((a, b) => b.pos - a.pos);
       state.userSettings = settings;
       state.currentSettings = settings.filter(
         item => item.expirationDate.seconds * 1000 > Date.now()

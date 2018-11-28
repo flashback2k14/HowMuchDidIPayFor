@@ -5,7 +5,7 @@
   >
     <div class="md-layout-item md-size-50 md-small-size-100">
       <form novalidate class="md-layout" @submit.prevent="validateUser">
-        <md-card md-with-hover class="md-layout-item">
+        <md-card class="md-layout-item" md-with-hover>
           <md-card-header> <div class="md-title">Login</div> </md-card-header>
 
           <md-card-content>
@@ -34,7 +34,11 @@
             </md-field>
           </md-card-content>
 
-          <md-progress-bar md-mode="indeterminate" v-if="sending" />
+          <md-progress-bar
+            class="md-accent"
+            md-mode="indeterminate"
+            v-if="sending"
+          />
 
           <md-card-actions>
             <md-button type="submit" class="md-primary" :disabled="sending">
