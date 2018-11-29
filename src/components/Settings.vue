@@ -7,13 +7,13 @@
           <md-table-cell md-label="Position" md-numeric>{{
             item.pos
           }}</md-table-cell>
-          <md-table-cell md-label="Preis für Frückstück" md-numeric>{{
+          <md-table-cell md-label="Preis für Frückstück (€)" md-numeric>{{
             item.breakfastPrize
           }}</md-table-cell>
-          <md-table-cell md-label="Preis für Mittagessen" md-numeric>{{
+          <md-table-cell md-label="Preis für Mittagessen (€)" md-numeric>{{
             item.lunchPrize
           }}</md-table-cell>
-          <md-table-cell md-label="Preis für Vespar" md-numeric>{{
+          <md-table-cell md-label="Preis für Vespar (€)" md-numeric>{{
             item.afternoonSnackPrize
           }}</md-table-cell>
           <md-table-cell md-label="Gültig Bis">{{
@@ -40,7 +40,7 @@
     </div>
     <!-- dialog:create -->
     <md-dialog :md-active.sync="showDialog">
-      <md-dialog-title>Create a new Setting</md-dialog-title>
+      <md-dialog-title>Eine neue Einstellung anlegen</md-dialog-title>
       <form novalidate @submit.prevent="createSetting">
         <md-dialog-content>
           <md-field>
@@ -85,15 +85,15 @@
         </md-dialog-content>
         <md-dialog-actions>
           <md-button class="md-primary" @click="closeDialog();"
-            >Close</md-button
+            >Abbrechen</md-button
           >
-          <md-button class="md-primary" type="submit">Save</md-button>
+          <md-button class="md-primary" type="submit">Speichern</md-button>
         </md-dialog-actions>
       </form>
     </md-dialog>
     <!-- dialog:edit -->
     <md-dialog :md-active.sync="showDialogEdit">
-      <md-dialog-title>Edit a Setting</md-dialog-title>
+      <md-dialog-title>Einstellung bearbeiten</md-dialog-title>
       <form novalidate @submit.prevent="editSetting">
         <md-dialog-content>
           <md-field>
@@ -138,9 +138,9 @@
         </md-dialog-content>
         <md-dialog-actions>
           <md-button class="md-primary" @click="closeDialogEdit();"
-            >Close</md-button
+            >Abbrechen</md-button
           >
-          <md-button class="md-primary" type="submit">Edit</md-button>
+          <md-button class="md-primary" type="submit">Aktualisieren</md-button>
         </md-dialog-actions>
       </form>
     </md-dialog>

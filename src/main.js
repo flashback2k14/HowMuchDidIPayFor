@@ -8,8 +8,8 @@ import router from "./router";
 import { store } from "./store";
 import { fb } from "./config/firebaseConfig";
 
-Vue.config.productionTip = false;
 Vue.use(VueMaterial);
+Vue.config.productionTip = false;
 
 let app;
 
