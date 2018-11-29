@@ -7,19 +7,19 @@
           <md-table-cell md-label="Position" md-numeric>{{
             item.pos
           }}</md-table-cell>
-          <md-table-cell md-label="Breakfast Prize" md-numeric>{{
+          <md-table-cell md-label="Preis für Frückstück" md-numeric>{{
             item.breakfastPrize
           }}</md-table-cell>
-          <md-table-cell md-label="Lunch Prize" md-numeric>{{
+          <md-table-cell md-label="Preis für Mittagessen" md-numeric>{{
             item.lunchPrize
           }}</md-table-cell>
-          <md-table-cell md-label="Afternoon Snack Prize" md-numeric>{{
+          <md-table-cell md-label="Preis für Vespar" md-numeric>{{
             item.afternoonSnackPrize
           }}</md-table-cell>
-          <md-table-cell md-label="Expiration Date">{{
+          <md-table-cell md-label="Gültig Bis">{{
             item.expirationDate | formattedDate
           }}</md-table-cell>
-          <md-table-cell md-label="Edit">
+          <md-table-cell md-label="Bearbeiten">
             <md-button
               class="md-icon-button md-dense"
               @click="showEditDialog(item);"
@@ -27,7 +27,7 @@
               <md-icon>edit</md-icon>
             </md-button>
           </md-table-cell>
-          <md-table-cell md-label="Delete">
+          <md-table-cell md-label="Löschen">
             <md-button
               class="md-icon-button md-dense"
               @click="showDeleteDialog(item);"

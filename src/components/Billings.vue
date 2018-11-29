@@ -6,13 +6,12 @@
           <div class="md-title">Abrechnungen</div>
           <md-divider></md-divider>
         </md-card-header>
-
         <md-card-content>
           <div v-if="userBillings.length === 0">
             <md-empty-state
               md-icon="block"
-              md-label="Billings"
-              md-description="There is currently no data avialable."
+              md-label="Abrechnungen"
+              md-description="Keine Daten vorhanden."
             >
             </md-empty-state>
           </div>
@@ -45,13 +44,16 @@
                 <md-table-cell md-label="Jahr" md-numeric>{{
                   item.year
                 }}</md-table-cell>
-                <md-table-cell md-label="bezahlt">{{
-                  item.isPaid
-                }}</md-table-cell>
+                <md-table-cell md-label="Bezahlt">
+                  <md-checkbox v-model="item.isPaid" disabled></md-checkbox>
+                </md-table-cell>
               </md-table-row>
             </md-table>
           </div>
         </md-card-content>
+        <md-card-actions>
+          <md-button>Neuen Monat beginnen</md-button>
+        </md-card-actions>
       </md-card>
     </div>
     <md-divider></md-divider>
@@ -66,8 +68,8 @@
           <div v-if="currentBillingEntries.length === 0">
             <md-empty-state
               md-icon="block"
-              md-label="Billing Entries"
-              md-description="There is currently no data avialable."
+              md-label="Einträge"
+              md-description="Keine Daten vorhanden oder keine Abrechnung ausgewählt."
             >
             </md-empty-state>
           </div>
@@ -84,15 +86,21 @@
                 <md-table-cell md-label="Tag">{{
                   item.date | formattedDate
                 }}</md-table-cell>
-                <md-table-cell md-label="Frühstück">{{
-                  item.hasBreakfast
-                }}</md-table-cell>
-                <md-table-cell md-label="Mittagessen">{{
-                  item.hasLunch
-                }}</md-table-cell>
-                <md-table-cell md-label="Vespar">{{
-                  item.hasAfternoonSnack
-                }}</md-table-cell>
+                <md-table-cell md-label="Frühstück">
+                  <md-checkbox
+                    v-model="item.hasBreakfast"
+                    disabled
+                  ></md-checkbox>
+                </md-table-cell>
+                <md-table-cell md-label="Mittagessen">
+                  <md-checkbox v-model="item.hasLunch" disabled></md-checkbox>
+                </md-table-cell>
+                <md-table-cell md-label="Vespar">
+                  <md-checkbox
+                    v-model="item.hasAfternoonSnack"
+                    disabled
+                  ></md-checkbox>
+                </md-table-cell>
               </md-table-row>
             </md-table>
           </div>
@@ -144,8 +152,11 @@ export default {
   margin-top: 12px;
 }
 
-.billing-table_height,
-.entries-table_height {
+.billing-table_height {
   height: 30vh;
+}
+
+.entries-table_height {
+  height: 50vh;
 }
 </style>

@@ -27,21 +27,21 @@
         >
           <md-tab
             id="tabDashboard"
-            md-label="Dashboard"
+            md-label="Übersicht"
             to="/dashboard"
             :md-disabled="!currentUser"
           >
           </md-tab>
           <md-tab
             id="tabBillings"
-            md-label="Billings"
+            md-label="Abrechnungen"
             to="/billings"
             :md-disabled="!currentUser"
           >
           </md-tab>
           <md-tab
             id="tabSettings"
-            md-label="Settings"
+            md-label="Einstellungen"
             to="/settings"
             :md-disabled="!currentUser"
           >
