@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="md-layout setting-container_height"
-    :class="`md-alignment-top-center`"
-  >
+  <div class="md-layout md-alignment-top-center setting-container_height">
     <!-- data table -->
     <div class="md-layout-item md-size-95">
       <md-table :value="userSettings" md-card>

@@ -9,21 +9,31 @@ fb.auth.onAuthStateChanged(user => {
     store.commit("setCurrentUser", user);
     store.dispatch("fetchUserProfile");
     store.dispatch("fetchUserSettings");
+    store.dispatch("fetchUserBillings");
   }
 });
 
 export const store = new Vuex.Store({
   state: {
     currentUser: null,
-    currentSettings: null,
+    currentSetting: null,
+    currentBilling: null,
+    currentSelectedBilling: null,
+    currentBillingEntries: [],
     userProfile: {},
-    userSettings: []
+    userSettings: [],
+    userBillings: []
   },
   actions: {
     clearState({ commit }) {
       commit("setCurrentUser", null);
       commit("setUserProfile", {});
       commit("setUserSettings", []);
+      commit("setUserBillings", []);
+      commit("setCurrentSetting", null);
+      commit("setCurrentBilling", null);
+      commit("setCurrentSelectedBilling", null);
+      commit("setCurrentBillingEntries", []);
     },
     fetchUserProfile({ commit, state }) {
       fb.users
@@ -48,13 +58,58 @@ export const store = new Vuex.Store({
           }
         })
         .catch(error => {
-          console.log(error);
+          console.error(error);
+        });
+    },
+    fetchUserBillings({ commit, state }) {
+      fb.billings
+        .where("userId", "==", state.currentUser.uid)
+        .get()
+        .then(res => {
+          if (!res.empty) {
+            commit("setUserBillings", res.docs);
+          }
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    },
+    fetchcurrentBillingEntries({ commit, state }) {
+      fb.billingEntries
+        .where("billingId", "==", state.currentSelectedBilling.id)
+        .get()
+        .then(res => {
+          if (!res.empty) {
+            commit("setCurrentBillingEntries", res.docs);
+          }
+        })
+        .catch(error => {
+          console.error(error);
         });
     }
   },
   mutations: {
     setCurrentUser(state, val) {
       state.currentUser = val;
+    },
+    setCurrentSetting(state, val) {
+      state.currentSetting = val;
+    },
+    setCurrentBilling(state, val) {
+      state.currentBilling = val;
+    },
+    setCurrentSelectedBilling(state, val) {
+      state.currentSelectedBilling = val;
+    },
+    setCurrentBillingEntries(state, val) {
+      state.currentBillingEntries = val
+        .map((item, index) => {
+          let entry = item.data();
+          entry.id = item.id;
+          entry.pos = ++index;
+          return entry;
+        })
+        .sort((a, b) => b.pos - a.pos);
     },
     setUserProfile(state, val) {
       state.userProfile = val;
@@ -69,9 +124,21 @@ export const store = new Vuex.Store({
         })
         .sort((a, b) => b.pos - a.pos);
       state.userSettings = settings;
-      state.currentSettings = settings.filter(
+      state.currentSetting = settings.filter(
         item => item.expirationDate.seconds * 1000 > Date.now()
       )[0];
+    },
+    setUserBillings(state, val) {
+      const billings = val
+        .map((item, index) => {
+          let billing = item.data();
+          billing.id = item.id;
+          billing.pos = ++index;
+          return billing;
+        })
+        .sort((a, b) => b.year * 1000 + b.month - (a.year * 1000 + a.month));
+      state.userBillings = billings;
+      state.currentBilling = billings.filter(item => item.isPaid === false)[0];
     }
   }
 });

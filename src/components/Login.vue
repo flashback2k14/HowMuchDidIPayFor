@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="md-layout md-gutter login-container_height"
-    :class="`md-alignment-center-center`"
-  >
+  <div class="md-layout md-alignment-center-center login-container_height">
     <div class="md-layout-item md-size-50 md-small-size-100">
       <form novalidate class="md-layout" @submit.prevent="validateUser">
         <md-card class="md-layout-item" md-with-hover>
@@ -72,6 +69,7 @@ export default {
           this.$store.commit("setCurrentUser", result.user);
           this.$store.dispatch("fetchUserProfile");
           this.$store.dispatch("fetchUserSettings");
+          this.$store.dispatch("fetchUserBillings");
           this.sending = false;
           this.$router.push("/dashboard");
         })
