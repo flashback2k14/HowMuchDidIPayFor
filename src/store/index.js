@@ -17,7 +17,7 @@ export const store = new Vuex.Store({
   state: {
     currentUser: null,
     currentSetting: null,
-    currentBilling: null,
+    currentBillings: null,
     currentSelectedBilling: null,
     currentBillingEntries: [],
     userProfile: {},
@@ -31,7 +31,7 @@ export const store = new Vuex.Store({
       commit("setUserSettings", []);
       commit("setUserBillings", []);
       commit("setCurrentSetting", null);
-      commit("setCurrentBilling", null);
+      commit("setCurrentBillings", null);
       commit("setCurrentSelectedBilling", null);
       commit("setCurrentBillingEntries", []);
     },
@@ -95,8 +95,8 @@ export const store = new Vuex.Store({
     setCurrentSetting(state, val) {
       state.currentSetting = val;
     },
-    setCurrentBilling(state, val) {
-      state.currentBilling = val;
+    setCurrentBillings(state, val) {
+      state.currentBillings = val;
     },
     setCurrentSelectedBilling(state, val) {
       state.currentSelectedBilling = val;
@@ -138,7 +138,7 @@ export const store = new Vuex.Store({
         })
         .sort((a, b) => b.year * 1000 + b.month - (a.year * 1000 + a.month));
       state.userBillings = billings;
-      state.currentBilling = billings.filter(item => item.isPaid === false)[0];
+      state.currentBillings = billings.filter(item => item.isPaid === false);
     }
   }
 });
