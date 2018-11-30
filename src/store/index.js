@@ -109,7 +109,7 @@ export const store = new Vuex.Store({
           entry.pos = ++index;
           return entry;
         })
-        .sort((a, b) => b.pos - a.pos);
+        .sort((a, b) => b.date.seconds - a.date.seconds);
     },
     setUserProfile(state, val) {
       state.userProfile = val;
