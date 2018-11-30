@@ -155,16 +155,6 @@
 import { mapState } from "vuex";
 import { fb } from "../config/firebaseConfig.js";
 
-const formatter = new Intl.DateTimeFormat("de-DE", {
-  year: "numeric",
-  month: "long",
-  day: "numeric"
-});
-
-const formattedDateFilter = function(value) {
-  return formatter.format(new Date(value.seconds * 1000));
-};
-
 export default {
   name: "Billings",
   data() {
@@ -178,9 +168,6 @@ export default {
   },
   computed: {
     ...mapState(["currentUser", "userBillings", "currentBillingEntries"])
-  },
-  filters: {
-    formattedDate: formattedDateFilter
   },
   methods: {
     onBillingSelect(item) {

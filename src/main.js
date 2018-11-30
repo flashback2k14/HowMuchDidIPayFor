@@ -15,6 +15,19 @@ let app;
 
 fb.auth.onAuthStateChanged(user => {
   if (!app) {
+    const formatter = new Intl.DateTimeFormat("de-DE", {
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+
+    Vue.filter("formattedDate", function(value) {
+      if (!value) {
+        return "";
+      }
+      return formatter.format(new Date(value.seconds * 1000));
+    });
+
     app = new Vue({
       el: "#app",
       router,

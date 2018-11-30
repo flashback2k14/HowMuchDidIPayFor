@@ -166,16 +166,6 @@
 import { mapState } from "vuex";
 import { fb } from "../config/firebaseConfig.js";
 
-const formatter = new Intl.DateTimeFormat("de-DE", {
-  year: "numeric",
-  month: "long",
-  day: "numeric"
-});
-
-const formattedDateFilter = function(value) {
-  return formatter.format(new Date(value.seconds * 1000));
-};
-
 export default {
   name: "Settings",
   data() {
@@ -195,9 +185,6 @@ export default {
   },
   computed: {
     ...mapState(["userSettings", "currentUser"])
-  },
-  filters: {
-    formattedDate: formattedDateFilter
   },
   methods: {
     clearForm() {
