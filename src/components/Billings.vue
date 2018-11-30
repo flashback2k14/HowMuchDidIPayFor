@@ -71,7 +71,7 @@
     <div class="md-layout-item md-size-95">
       <md-card>
         <md-card-header>
-          <div class="md-title">Einträge</div>
+          <div class="md-title">Abrechnungseinträge</div>
           <md-divider></md-divider>
         </md-card-header>
 
@@ -192,7 +192,6 @@ export default {
   methods: {
     onBillingSelect(item) {
       if (item) {
-        console.log(item);
         this.$store.commit("setCurrentSelectedBilling", item);
         this.$store.dispatch("fetchCurrentBillingEntries");
       } else {
@@ -230,7 +229,7 @@ export default {
       this.showDialogDelete = !this.showDialogDelete;
     },
     async _deleteEntry(doc) {
-      return await doc.delete();
+      return await fb.billingEntries.doc(doc.id).delete();
     },
     async _getBillingEntries() {
       return await fb.billingEntries
@@ -245,8 +244,10 @@ export default {
         await this._deleteBilling();
         const entries = await this._getBillingEntries();
 
-        const promHolder = entries.map(this._deleteEntry);
-        await Promise.all(promHolder);
+        if (!entries.empty) {
+          const promHolder = entries.docs.map(this._deleteEntry);
+          await Promise.all(promHolder);
+        }
 
         this.$store.commit("setCurrentSelectedBilling", null);
         this.$store.commit("setCurrentBillingEntries", []);
