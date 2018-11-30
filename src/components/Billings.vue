@@ -48,6 +48,14 @@
                 <md-table-cell md-label="Bezahlt">
                   <md-checkbox v-model="item.isPaid" disabled></md-checkbox>
                 </md-table-cell>
+                <md-table-cell md-label="Löschen">
+                  <md-button
+                    class="md-icon-button md-dense"
+                    @click="showDeleteDialog(item);"
+                  >
+                    <md-icon>delete</md-icon>
+                  </md-button>
+                </md-table-cell>
               </md-table-row>
             </md-table>
           </div>
@@ -148,6 +156,16 @@
         </md-dialog-actions>
       </form>
     </md-dialog>
+    <!-- dialog:delete -->
+    <md-dialog-confirm
+      :md-active.sync="showDialogDelete"
+      md-title="Wollen Sie wirklich diesen Eintrag löschen?"
+      md-content="Hinweis: Diese Aktion löscht auch alle verbundenen Abrechnungseinträge."
+      md-confirm-text="Ja"
+      md-cancel-text="Nein"
+      @md-confirm="onDeleteConfirm"
+      @md-cancel="onDeleteCancel"
+    />
   </div>
 </template>
 
@@ -160,6 +178,8 @@ export default {
   data() {
     return {
       showDialog: false,
+      showDialogDelete: false,
+      deletedableBilling__: null,
       form: {
         month: null,
         year: null
@@ -174,7 +194,7 @@ export default {
       if (item) {
         console.log(item);
         this.$store.commit("setCurrentSelectedBilling", item);
-        this.$store.dispatch("fetchcurrentBillingEntries");
+        this.$store.dispatch("fetchCurrentBillingEntries");
       } else {
         this.$store.commit("setCurrentSelectedBilling", null);
         this.$store.commit("setCurrentBillingEntries", []);
@@ -204,6 +224,40 @@ export default {
         .catch(error => {
           console.log(error);
         });
+    },
+    showDeleteDialog(item) {
+      this.deletedableBilling__ = item;
+      this.showDialogDelete = !this.showDialogDelete;
+    },
+    async _deleteEntry(doc) {
+      return await doc.delete();
+    },
+    async _getBillingEntries() {
+      return await fb.billingEntries
+        .where("billingId", "==", this.deletedableBilling__.id)
+        .get();
+    },
+    async _deleteBilling() {
+      return await fb.billings.doc(this.deletedableBilling__.id).delete();
+    },
+    async onDeleteConfirm() {
+      try {
+        await this._deleteBilling();
+        const entries = await this._getBillingEntries();
+
+        const promHolder = entries.map(this._deleteEntry);
+        await Promise.all(promHolder);
+
+        this.$store.commit("setCurrentSelectedBilling", null);
+        this.$store.commit("setCurrentBillingEntries", []);
+        this.$store.dispatch("fetchUserBillings");
+        this.deletedableBilling__ = null;
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    onDeleteCancel() {
+      this.deletedableBilling__ = null;
     }
   }
 };

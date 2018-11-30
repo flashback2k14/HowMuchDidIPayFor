@@ -74,7 +74,7 @@ export const store = new Vuex.Store({
           console.error(error);
         });
     },
-    fetchcurrentBillingEntries({ commit, state }) {
+    fetchCurrentBillingEntries({ commit, state }) {
       fb.billingEntries
         .where("billingId", "==", state.currentSelectedBilling.id)
         .get()
