@@ -88,8 +88,3 @@ export default {
   height: 100vh;
 }
 </style>
-
-//
-https://www.google.de/search?q=firebase+vuejs&oq=firebase+vue&aqs=chrome.1.69i57j0l3.8564j1j7&client=ms-unknown&sourceid=chrome-mobile&ie=UTF-8#scso=_j_T6W6miBsmPgAaHop_QDQ18:999
-// https://savvyapps.com/blog/definitive-guide-building-web-app-vuejs-firebase
-// https://github.com/savvyapps/SAVuegram/blob/master/src/App.vue
