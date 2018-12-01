@@ -2,41 +2,56 @@
   <div class="md-layout md-alignment-top-center setting-container_height">
     <!-- data table -->
     <div class="md-layout-item md-size-95">
-      <md-table :value="userSettings" md-card>
-        <md-table-row slot="md-table-row" slot-scope="{ item }">
-          <md-table-cell md-label="Position" md-numeric>{{
-            item.pos
-          }}</md-table-cell>
-          <md-table-cell md-label="Preis für Frückstück (€)" md-numeric>{{
-            item.breakfastPrize
-          }}</md-table-cell>
-          <md-table-cell md-label="Preis für Mittagessen (€)" md-numeric>{{
-            item.lunchPrize
-          }}</md-table-cell>
-          <md-table-cell md-label="Preis für Vespar (€)" md-numeric>{{
-            item.afternoonSnackPrize
-          }}</md-table-cell>
-          <md-table-cell md-label="Gültig Bis">{{
-            item.expirationDate | formattedDate
-          }}</md-table-cell>
-          <md-table-cell md-label="Bearbeiten">
-            <md-button
-              class="md-icon-button md-dense"
-              @click="showEditDialog(item);"
-            >
-              <md-icon>edit</md-icon>
-            </md-button>
-          </md-table-cell>
-          <md-table-cell md-label="Löschen">
-            <md-button
-              class="md-icon-button md-dense"
-              @click="showDeleteDialog(item);"
-            >
-              <md-icon>delete</md-icon>
-            </md-button>
-          </md-table-cell>
-        </md-table-row>
-      </md-table>
+      <md-card>
+        <md-card-header>
+          <div class="md-title">Preishistorie</div>
+          <md-divider></md-divider>
+        </md-card-header>
+
+        <md-card-content>
+          <md-table :value="userSettings">
+            <md-table-row slot="md-table-row" slot-scope="{ item }">
+              <md-table-cell md-label="Position" md-numeric>{{
+                item.pos
+              }}</md-table-cell>
+              <md-table-cell md-label="Preis für Frückstück (€)" md-numeric>{{
+                item.breakfastPrize
+              }}</md-table-cell>
+              <md-table-cell md-label="Preis für Mittagessen (€)" md-numeric>{{
+                item.lunchPrize
+              }}</md-table-cell>
+              <md-table-cell md-label="Preis für Vespar (€)" md-numeric>{{
+                item.afternoonSnackPrize
+              }}</md-table-cell>
+              <md-table-cell md-label="Gültig Bis">{{
+                item.expirationDate | formattedDate
+              }}</md-table-cell>
+              <md-table-cell md-label="Bearbeiten">
+                <md-button
+                  class="md-icon-button md-dense"
+                  @click="showEditDialog(item);"
+                >
+                  <md-icon>edit</md-icon>
+                </md-button>
+              </md-table-cell>
+              <md-table-cell md-label="Löschen">
+                <md-button
+                  class="md-icon-button md-dense"
+                  @click="showDeleteDialog(item);"
+                >
+                  <md-icon>delete</md-icon>
+                </md-button>
+              </md-table-cell>
+            </md-table-row>
+          </md-table>
+        </md-card-content>
+
+        <md-card-actions>
+          <md-button @click="showDialog = !showDialog;"
+            >Neuen Eintrag anlegen</md-button
+          >
+        </md-card-actions>
+      </md-card>
     </div>
     <!-- dialog:create -->
     <md-dialog :md-active.sync="showDialog">
@@ -153,12 +168,6 @@
       @md-confirm="onDeleteConfirm"
       @md-cancel="onDeleteCancel"
     />
-    <!-- fab -->
-    <div class="container-button">
-      <md-button class="md-fab" @click="showDialog = !showDialog;">
-        <md-icon>add</md-icon>
-      </md-button>
-    </div>
   </div>
 </template>
 
@@ -271,17 +280,5 @@ export default {
 .setting-container_height {
   height: inherit;
   margin-top: 12px;
-}
-
-.container-button {
-  position: absolute;
-  bottom: 12px;
-  left: calc(50vw - 56px);
-}
-/* Smartphones (portrait and landscape) ----------- */
-@media only screen and (min-device-width: 320px) and (max-device-width: 480px) {
-  .container-button {
-    left: calc(50vw - 36px);
-  }
 }
 </style>

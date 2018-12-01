@@ -2,8 +2,9 @@
   <md-app md-waterfall md-mode="fixed-last">
     <md-app-toolbar class="md-large md-dense md-primary">
       <div class="md-toolbar-row">
+        <md-icon>donut_large</md-icon>
         <div class="md-toolbar-section-start">
-          <span class="md-title">HowMuchDidIPayFor</span>
+          <span class="md-title"> KEP </span>
         </div>
 
         <div class="md-toolbar-section-end">
