@@ -11,6 +11,7 @@ const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const OptimizeCSSPlugin = require("optimize-css-assets-webpack-plugin");
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 const WebpackPwaManifest = require("webpack-pwa-manifest");
+const SWPrecacheWebpackPlugin = require("sw-precache-webpack-plugin");
 
 const env =
   process.env.NODE_ENV === "testing"
@@ -136,6 +137,23 @@ const webpackConfig = merge(baseWebpackConfig, {
           src:
             "https://uploads.codesandbox.io/uploads/user/0c11be9c-9e58-4bed-a3a7-920728f5080a/U-QX-android-chrome-512x512.png",
           size: "512x512"
+        }
+      ]
+    }),
+    new SWPrecacheWebpackPlugin({
+      cacheId: "kep-app",
+      filename: "service-worker.js",
+      staticFileGlobs: ["dist/**/*.{js,html,css}"],
+      minify: true,
+      stripPrefix: "dist/",
+      runtimeCaching: [
+        {
+          urlPattern: /^https:\/\/fonts\.googleapis\.com\//,
+          handler: "cacheFirst"
+        },
+        {
+          urlPattern: /^https:\/\/fonts\.gstatic\.com\//,
+          handler: "cacheFirst"
         }
       ]
     })
