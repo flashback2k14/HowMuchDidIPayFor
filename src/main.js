@@ -7,6 +7,7 @@ import App from "./App";
 import router from "./router";
 import { store } from "./store";
 import { fb } from "./config/firebaseConfig";
+import registerServiceWorker from "./config/registerServiceWorker";
 
 Vue.use(VueMaterial);
 Vue.config.productionTip = false;
@@ -34,5 +35,7 @@ fb.auth.onAuthStateChanged(user => {
       store,
       render: h => h(App)
     });
+
+    registerServiceWorker();
   }
 });
