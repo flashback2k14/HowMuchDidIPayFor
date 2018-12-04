@@ -11,7 +11,6 @@ import { fb } from "@/config/firebaseConfig";
 Vue.use(Router);
 
 const router = new Router({
-  mode: "history",
   routes: [
     {
       path: "*",
