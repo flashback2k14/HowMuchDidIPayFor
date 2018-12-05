@@ -18,7 +18,7 @@
                 id="email"
                 autocomplete="email"
                 v-model.trim="form.email"
-                :disabled="sending"
+                :disabled="flags.waitingForRequestAnswer"
               />
             </md-field>
 
@@ -30,19 +30,23 @@
                 id="password"
                 autocomplete="password"
                 v-model.trim="form.password"
-                :disabled="sending"
+                :disabled="flags.waitingForRequestAnswer"
               />
             </md-field>
 
             <md-progress-bar
               class="md-accent"
               md-mode="indeterminate"
-              v-if="sending"
+              v-if="flags.waitingForRequestAnswer"
             />
           </md-card-content>
 
           <md-card-actions>
-            <md-button type="submit" class="md-primary" :disabled="sending">
+            <md-button
+              type="submit"
+              class="md-primary"
+              :disabled="flags.waitingForRequestAnswer"
+            >
               Login
             </md-button>
           </md-card-actions>
@@ -71,19 +75,21 @@ import { ActionType, MutationType } from "../helper";
 export default {
   name: "Login",
   data: () => ({
-    form: {
-      email: null,
-      password: null
-    },
     errors: {
       showSnackbar: false,
       message: null
     },
-    sending: false
+    form: {
+      email: null,
+      password: null
+    },
+    flags: {
+      waitingForRequestAnswer: false
+    }
   }),
   methods: {
     validateUser() {
-      this.sending = true;
+      this.flags.waitingForRequestAnswer = true;
       fb.auth
         .signInWithEmailAndPassword(this.form.email, this.form.password)
         .then(result => {
@@ -91,14 +97,14 @@ export default {
           this.$store.dispatch(ActionType.FETCH_USER_PROFILE);
           this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
           this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
-          this.sending = false;
+          this.flags.waitingForRequestAnswer = false;
           this.$router.push("/dashboard");
         })
         .catch(error => {
           console.error(error);
           this.errors.message = error.message;
           this.errors.showSnackbar = true;
-          this.sending = false;
+          this.flags.waitingForRequestAnswer = false;
         });
     },
     closeErrorSnackbar() {

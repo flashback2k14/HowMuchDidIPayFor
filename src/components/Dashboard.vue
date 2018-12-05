@@ -36,8 +36,8 @@
     </div>
     <!-- dialog:close-billing -->
     <md-dialog-prompt
-      :md-active.sync="showDialogCloseBilling"
-      v-model="closableBilling__.billingSaldo"
+      :md-active.sync="dialogs.isCloseBillingVisible"
+      v-model="privates.closableBilling.billingSaldo"
       md-title="Wollen Sie die aktuelle Abrechnung abschließen?"
       md-content="Bitte geben Sie den Abrechnungssaldo in Euro ein."
       md-input-placeholder="Abrechnungssaldo"
@@ -47,7 +47,7 @@
       @md-cancel="onCloseBillingCancel"
     />
     <!-- dialog:create -->
-    <md-dialog :md-active.sync="showDialog">
+    <md-dialog :md-active.sync="dialogs.isCreateEntryVisible">
       <md-dialog-title>Einen neuen Abrechnungseintrag anlegen</md-dialog-title>
       <form novalidate @submit.prevent="createBillingEntry">
         <md-dialog-content>
@@ -85,7 +85,10 @@
     </md-dialog>
     <!-- fab -->
     <div class="container-button">
-      <md-button class="md-fab" @click="showDialog = !showDialog;">
+      <md-button
+        class="md-fab"
+        @click="dialogs.isCreateEntryVisible = !dialogs.isCreateEntryVisible;"
+      >
         <md-icon>add</md-icon>
       </md-button>
     </div>
@@ -114,45 +117,49 @@ export default {
           };
         });
       }
-      return [{ text: null, value: null }];
+      return [{ text: "", value: "" }];
     }
   },
   data() {
     return {
-      showDialog: false,
-      showDialogCloseBilling: false,
-      closableBilling__: {},
+      dialogs: {
+        isCreateEntryVisible: false,
+        isCloseBillingVisible: false
+      },
       form: {
         billing: null,
         hasBreakfast: null,
         hasLunch: null,
         hasAfternoonSnack: null,
         date: null
+      },
+      privates: {
+        closableBilling: {}
       }
     };
   },
   methods: {
     setBillingAsPaid(item) {
-      this.closableBilling__ = item;
-      this.showDialogCloseBilling = !this.showDialogCloseBilling;
+      this.privates.closableBilling = item;
+      this.dialogs.isCloseBillingVisible = !this.dialogs.isCloseBillingVisible;
     },
     onCloseBillingConfirm() {
       fb.billings
-        .doc(this.closableBilling__.id)
+        .doc(this.privates.closableBilling.id)
         .update({
-          billingSaldo: parseFloat(this.closableBilling__.billingSaldo),
+          billingSaldo: parseFloat(this.privates.closableBilling.billingSaldo),
           isPaid: true
         })
         .then(() => {
           this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
-          this.closableBilling__ = {};
+          this.privates.closableBilling = {};
         })
         .catch(error => {
           console.error(error);
         });
     },
     onCloseBillingCancel() {
-      this.closableBilling__ = {};
+      this.privates.closableBilling = {};
     },
     closeDialog() {
       this.form.billing = null;
@@ -160,7 +167,7 @@ export default {
       this.form.hasLunch = null;
       this.form.hasAfternoonSnack = null;
       this.form.date = null;
-      this.showDialog = !this.showDialog;
+      this.dialogs.isCreateEntryVisible = !this.dialogs.isCreateEntryVisible;
     },
     createBillingEntry() {
       // 1. save entry

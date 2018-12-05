@@ -61,7 +61,8 @@
           </div>
         </md-card-content>
         <md-card-actions>
-          <md-button @click="showDialog = !showDialog;"
+          <md-button
+            @click="dialogs.isCreateVisible = !dialogs.isCreateVisible;"
             >Neuen Monat beginnen</md-button
           >
         </md-card-actions>
@@ -124,7 +125,7 @@
       </md-card>
     </div>
     <!-- dialog:create -->
-    <md-dialog :md-active.sync="showDialog">
+    <md-dialog :md-active.sync="dialogs.isCreateVisible">
       <md-dialog-title>Erstellung einer neuen Monatsabrechnung</md-dialog-title>
       <form novalidate @submit.prevent="createBilling">
         <md-dialog-content>
@@ -163,7 +164,7 @@
     </md-dialog>
     <!-- dialog:delete -->
     <md-dialog-confirm
-      :md-active.sync="showDialogDelete"
+      :md-active.sync="dialogs.isDeleteVisible"
       md-title="Wollen Sie wirklich diesen Eintrag löschen?"
       md-content="Hinweis: Diese Aktion löscht auch alle verbundenen Abrechnungseinträge."
       md-confirm-text="Ja"
@@ -190,12 +191,16 @@ export default {
   },
   data() {
     return {
-      showDialog: false,
-      showDialogDelete: false,
-      deletedableBilling__: null,
+      dialogs: {
+        isCreateVisible: false,
+        isDeleteVisible: false
+      },
       form: {
         month: null,
         year: null
+      },
+      privates: {
+        deletedableBilling: null
       }
     };
   },
@@ -214,7 +219,7 @@ export default {
     closeDialog() {
       this.form.month = null;
       this.form.year = null;
-      this.showDialog = !this.showDialog;
+      this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
     },
     createBilling() {
       fb.billings
@@ -237,19 +242,21 @@ export default {
         });
     },
     showDeleteDialog(item) {
-      this.deletedableBilling__ = item;
-      this.showDialogDelete = !this.showDialogDelete;
+      this.privates.deletedableBilling = item;
+      this.dialogs.isDeleteVisible = !this.dialogs.isDeleteVisible;
     },
     async _deleteEntry(doc) {
       return await fb.billingEntries.doc(doc.id).delete();
     },
     async _getBillingEntries() {
       return await fb.billingEntries
-        .where("billingId", "==", this.deletedableBilling__.id)
+        .where("billingId", "==", this.privates.deletedableBilling.id)
         .get();
     },
     async _deleteBilling() {
-      return await fb.billings.doc(this.deletedableBilling__.id).delete();
+      return await fb.billings
+        .doc(this.privates.deletedableBilling.id)
+        .delete();
     },
     async onDeleteConfirm() {
       try {
@@ -265,13 +272,13 @@ export default {
         this.$store.commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
         this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
 
-        this.deletedableBilling__ = null;
+        this.privates.deletedableBilling = null;
       } catch (error) {
         console.error(error);
       }
     },
     onDeleteCancel() {
-      this.deletedableBilling__ = null;
+      this.privates.deletedableBilling = null;
     }
   }
 };

@@ -59,14 +59,15 @@
         </md-card-content>
 
         <md-card-actions>
-          <md-button @click="showDialog = !showDialog;"
+          <md-button
+            @click="dialogs.isCreateVisible = !dialogs.isCreateVisible;"
             >Neuen Eintrag anlegen</md-button
           >
         </md-card-actions>
       </md-card>
     </div>
     <!-- dialog:create -->
-    <md-dialog :md-active.sync="showDialog">
+    <md-dialog :md-active.sync="dialogs.isCreateVisible">
       <md-dialog-title>Eine neue Einstellung anlegen</md-dialog-title>
       <form novalidate @submit.prevent="createSetting">
         <md-dialog-content>
@@ -119,7 +120,7 @@
       </form>
     </md-dialog>
     <!-- dialog:edit -->
-    <md-dialog :md-active.sync="showDialogEdit">
+    <md-dialog :md-active.sync="dialogs.isEditVisible">
       <md-dialog-title>Einstellung bearbeiten</md-dialog-title>
       <form novalidate @submit.prevent="editSetting">
         <md-dialog-content>
@@ -173,7 +174,7 @@
     </md-dialog>
     <!-- dialog:delete -->
     <md-dialog-confirm
-      :md-active.sync="showDialogDelete"
+      :md-active.sync="dialogs.isDeleteVisible"
       md-title="Wollen Sie wirklich diesen Eintrag löschen?"
       md-confirm-text="Ja"
       md-cancel-text="Nein"
@@ -195,16 +196,20 @@ export default {
   },
   data() {
     return {
-      showDialog: false,
-      showDialogEdit: false,
-      showDialogDelete: false,
-      editableSetting__: null,
-      deletedableSetting__: null,
+      dialogs: {
+        isCreateVisible: false,
+        isEditVisible: false,
+        isDeleteVisible: false
+      },
       form: {
         breakfastPrize: null,
         lunchPrize: null,
         afternoonSnackPrize: null,
         expirationDate: null
+      },
+      privates: {
+        deletedableSetting: null,
+        editableSetting: null
       }
     };
   },
@@ -217,11 +222,11 @@ export default {
     },
     closeDialog() {
       this.clearForm();
-      this.showDialog = !this.showDialog;
+      this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
     },
     closeDialogEdit() {
       this.clearForm();
-      this.showDialogEdit = !this.showDialogEdit;
+      this.dialogs.isEditVisible = !this.dialogs.isEditVisible;
     },
     createSetting() {
       fb.settings
@@ -242,7 +247,7 @@ export default {
     },
     editSetting() {
       fb.settings
-        .doc(this.editableSetting__.id)
+        .doc(this.privates.editableSetting.id)
         .update({
           breakfastPrize: parseFloat(this.form.breakfastPrize),
           lunchPrize: parseFloat(this.form.lunchPrize),
@@ -251,7 +256,7 @@ export default {
         })
         .then(() => {
           this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
-          this.editableSetting__ = null;
+          this.privates.editableSetting = null;
           this.closeDialogEdit();
         })
         .catch(error => {
@@ -259,31 +264,31 @@ export default {
         });
     },
     showEditDialog(item) {
-      this.editableSetting__ = item;
+      this.privates.editableSetting = item;
       this.form.breakfastPrize = item.breakfastPrize;
       this.form.lunchPrize = item.lunchPrize;
       this.form.afternoonSnackPrize = item.afternoonSnackPrize;
       this.form.expirationDate = new Date(item.expirationDate.seconds * 1000);
-      this.showDialogEdit = !this.showDialogEdit;
+      this.dialogs.isEditVisible = !this.dialogs.isEditVisible;
     },
     showDeleteDialog(item) {
-      this.deletedableSetting__ = item;
-      this.showDialogDelete = !this.showDialogDelete;
+      this.privates.deletedableSetting = item;
+      this.dialogs.isDeleteVisible = !this.dialogs.isDeleteVisible;
     },
     onDeleteConfirm() {
       fb.settings
-        .doc(this.deletedableSetting__.id)
+        .doc(this.privates.deletedableSetting.id)
         .delete()
         .then(() => {
           this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
-          this.deletedableSetting__ = null;
+          this.privates.deletedableSetting = null;
         })
         .catch(error => {
           console.log(error);
         });
     },
     onDeleteCancel() {
-      this.deletedableSetting__ = null;
+      this.privates.deletedableSetting = null;
     }
   }
 };
