@@ -9,41 +9,53 @@
         </md-card-header>
 
         <md-card-content>
-          <md-table :value="userSettings">
-            <md-table-row slot="md-table-row" slot-scope="{ item }">
-              <md-table-cell md-label="Position" md-numeric>{{
-                item.pos
-              }}</md-table-cell>
-              <md-table-cell md-label="Preis für Frückstück (€)" md-numeric>{{
-                item.breakfastPrize
-              }}</md-table-cell>
-              <md-table-cell md-label="Preis für Mittagessen (€)" md-numeric>{{
-                item.lunchPrize
-              }}</md-table-cell>
-              <md-table-cell md-label="Preis für Vespar (€)" md-numeric>{{
-                item.afternoonSnackPrize
-              }}</md-table-cell>
-              <md-table-cell md-label="Gültig Bis">{{
-                item.expirationDate | formattedDate
-              }}</md-table-cell>
-              <md-table-cell md-label="Bearbeiten">
-                <md-button
-                  class="md-icon-button md-dense"
-                  @click="showEditDialog(item);"
+          <div v-if="userSettings === null || userSettings.length === 0">
+            <md-empty-state
+              md-icon="block"
+              md-label="Einstellungen"
+              md-description="Keine Daten vorhanden."
+            >
+            </md-empty-state>
+          </div>
+          <div v-else>
+            <md-table :value="userSettings">
+              <md-table-row slot="md-table-row" slot-scope="{ item }">
+                <md-table-cell md-label="Position" md-numeric>{{
+                  item.pos
+                }}</md-table-cell>
+                <md-table-cell md-label="Preis für Frückstück (€)" md-numeric>{{
+                  item.breakfastPrize
+                }}</md-table-cell>
+                <md-table-cell
+                  md-label="Preis für Mittagessen (€)"
+                  md-numeric
+                  >{{ item.lunchPrize }}</md-table-cell
                 >
-                  <md-icon>edit</md-icon>
-                </md-button>
-              </md-table-cell>
-              <md-table-cell md-label="Löschen">
-                <md-button
-                  class="md-icon-button md-dense"
-                  @click="showDeleteDialog(item);"
-                >
-                  <md-icon>delete</md-icon>
-                </md-button>
-              </md-table-cell>
-            </md-table-row>
-          </md-table>
+                <md-table-cell md-label="Preis für Vespar (€)" md-numeric>{{
+                  item.afternoonSnackPrize
+                }}</md-table-cell>
+                <md-table-cell md-label="Gültig Bis">{{
+                  item.expirationDate | formattedDate
+                }}</md-table-cell>
+                <md-table-cell md-label="Bearbeiten">
+                  <md-button
+                    class="md-icon-button md-dense"
+                    @click="showEditDialog(item);"
+                  >
+                    <md-icon>edit</md-icon>
+                  </md-button>
+                </md-table-cell>
+                <md-table-cell md-label="Löschen">
+                  <md-button
+                    class="md-icon-button md-dense"
+                    @click="showDeleteDialog(item);"
+                  >
+                    <md-icon>delete</md-icon>
+                  </md-button>
+                </md-table-cell>
+              </md-table-row>
+            </md-table>
+          </div>
         </md-card-content>
 
         <md-card-actions>
@@ -174,6 +186,7 @@
 <script>
 import { mapState } from "vuex";
 import { fb } from "../config/firebaseConfig.js";
+import { ActionType, StateProperty } from "../helper";
 
 export default {
   name: "Settings",
@@ -193,7 +206,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(["userSettings", "currentUser"])
+    ...mapState([StateProperty.CURRENT_USER, StateProperty.USER_SETTINGS])
   },
   methods: {
     clearForm() {
@@ -220,7 +233,7 @@ export default {
           userId: this.currentUser.uid
         })
         .then(res => {
-          this.$store.dispatch("fetchUserSettings");
+          this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
           this.closeDialog();
         })
         .catch(error => {
@@ -237,7 +250,7 @@ export default {
           expirationDate: this.form.expirationDate
         })
         .then(() => {
-          this.$store.dispatch("fetchUserSettings");
+          this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
           this.editableSetting__ = null;
           this.closeDialogEdit();
         })
@@ -262,7 +275,7 @@ export default {
         .doc(this.deletedableSetting__.id)
         .delete()
         .then(() => {
-          this.$store.dispatch("fetchUserSettings");
+          this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
           this.deletedableSetting__ = null;
         })
         .catch(error => {

@@ -1,14 +1,3 @@
-export const StateProperty = {
-  CURRENT_USER: "currentUser",
-  CURRENT_SETTING: "currentSetting",
-  CURRENT_BILLINGS: "currentBillings",
-  CURRENT_SELECTED_BILLING: "currentSelectedBilling",
-  CURRENT_BILLING_ENTRIES: "currentBillingEntries",
-  USER_PROFILE: "userProfile",
-  USER_SETTINGS: "userSettings",
-  USER_BILLINGS: "userBillings"
-};
-
 export const ActionType = {
   CLEAR_STATE: "clearState",
   FETCH_USER_PROFILE: "fetchUserProfile",
@@ -27,6 +16,17 @@ export const MutationType = {
   SET_USER_PROFILE: "setUserProfile",
   SET_USER_SETTINGS: "setUserSettings",
   SET_USER_BILLINGS: "setUserBillings"
+};
+
+export const StateProperty = {
+  CURRENT_USER: "currentUser",
+  CURRENT_SETTING: "currentSetting",
+  CURRENT_BILLINGS: "currentBillings",
+  CURRENT_SELECTED_BILLING: "currentSelectedBilling",
+  CURRENT_BILLING_ENTRIES: "currentBillingEntries",
+  USER_PROFILE: "userProfile",
+  USER_SETTINGS: "userSettings",
+  USER_BILLINGS: "userBillings"
 };
 
 export const extendDocuments = docs => {

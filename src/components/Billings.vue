@@ -8,7 +8,7 @@
           <md-divider></md-divider>
         </md-card-header>
         <md-card-content>
-          <div v-if="userBillings.length === 0">
+          <div v-if="userBillings === null || userBillings.length === 0">
             <md-empty-state
               md-icon="block"
               md-label="Abrechnungen"
@@ -76,7 +76,12 @@
         </md-card-header>
 
         <md-card-content>
-          <div v-if="currentBillingEntries.length === 0">
+          <div
+            v-if="
+              currentBillingEntries === null ||
+                currentBillingEntries.length === 0
+            "
+          >
             <md-empty-state
               md-icon="block"
               md-label="Einträge"
@@ -172,6 +177,7 @@
 <script>
 import { mapState } from "vuex";
 import { fb } from "../config/firebaseConfig.js";
+import { ActionType, MutationType, StateProperty } from "../helper";
 
 export default {
   name: "Billings",
@@ -187,16 +193,22 @@ export default {
     };
   },
   computed: {
-    ...mapState(["currentUser", "userBillings", "currentBillingEntries"])
+    ...mapState([
+      StateProperty.CURRENT_USER,
+      StateProperty.CURRENT_BILLING_ENTRIES,
+      StateProperty.USER_BILLINGS
+    ])
   },
   methods: {
     onBillingSelect(item) {
       if (item) {
-        this.$store.commit("setCurrentSelectedBilling", item);
-        this.$store.dispatch("fetchUserBillingEntriesForSelection");
+        this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, item);
+        this.$store.dispatch(
+          ActionType.FETCH_USER_BILLING_ENTRIES_FOR_SELECTION
+        );
       } else {
-        this.$store.commit("setCurrentSelectedBilling", null);
-        this.$store.commit("setCurrentBillingEntries", []);
+        this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
+        this.$store.commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
       }
     },
     closeDialog() {
@@ -215,9 +227,9 @@ export default {
           year: parseInt(this.form.year)
         })
         .then(res => {
-          this.$store.commit("setCurrentSelectedBilling", null);
-          this.$store.commit("setCurrentBillingEntries", []);
-          this.$store.dispatch("fetchUserBillings");
+          this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
+          this.$store.commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
+          this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
           this.closeDialog();
         })
         .catch(error => {
@@ -249,9 +261,10 @@ export default {
           await Promise.all(promHolder);
         }
 
-        this.$store.commit("setCurrentSelectedBilling", null);
-        this.$store.commit("setCurrentBillingEntries", []);
-        this.$store.dispatch("fetchUserBillings");
+        this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
+        this.$store.commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
+        this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
+
         this.deletedableBilling__ = null;
       } catch (error) {
         console.error(error);

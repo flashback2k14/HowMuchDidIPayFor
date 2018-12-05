@@ -58,12 +58,12 @@
 <script>
 import { mapState } from "vuex";
 import { fb } from "./config/firebaseConfig";
-import { ActionType } from "./helper";
+import { ActionType, StateProperty } from "./helper";
 
 export default {
   name: "App",
   computed: {
-    ...mapState(["currentUser", "userProfile"])
+    ...mapState([StateProperty.CURRENT_USER, StateProperty.USER_PROFILE])
   },
   methods: {
     logoutUser() {

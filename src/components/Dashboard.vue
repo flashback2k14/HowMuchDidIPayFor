@@ -95,6 +95,7 @@
 <script>
 import { mapState } from "vuex";
 import { fb } from "../config/firebaseConfig.js";
+import { ActionType, StateProperty } from "../helper";
 
 export default {
   name: "Dashboard",
@@ -113,7 +114,11 @@ export default {
     };
   },
   computed: {
-    ...mapState(["currentBillings", "currentUser", "currentSetting"]),
+    ...mapState([
+      StateProperty.CURRENT_BILLINGS,
+      StateProperty.CURRENT_SETTING,
+      StateProperty.CURRENT_USER
+    ]),
     currentBillingIntervals: function() {
       if (this.currentBillings) {
         return this.currentBillings.map(billing => {
@@ -139,7 +144,7 @@ export default {
           isPaid: true
         })
         .then(() => {
-          this.$store.dispatch("fetchUserBillings");
+          this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
           this.closableBilling__ = {};
         })
         .catch(error => {
@@ -190,7 +195,7 @@ export default {
               currentSaldo: newCurrentSaldo
             })
             .then(() => {
-              this.$store.dispatch("fetchUserBillings");
+              this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
               this.closeDialog();
             })
             .catch(error => {

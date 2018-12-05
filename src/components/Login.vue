@@ -66,6 +66,7 @@
 
 <script>
 import { fb } from "../config/firebaseConfig.js";
+import { ActionType, MutationType } from "../helper";
 
 export default {
   name: "Login",
@@ -86,10 +87,10 @@ export default {
       fb.auth
         .signInWithEmailAndPassword(this.form.email, this.form.password)
         .then(result => {
-          this.$store.commit("setCurrentUser", result.user);
-          this.$store.dispatch("fetchUserProfile");
-          this.$store.dispatch("fetchUserSettings");
-          this.$store.dispatch("fetchUserBillings");
+          this.$store.commit(MutationType.SET_CURRENT_USER, result.user);
+          this.$store.dispatch(ActionType.FETCH_USER_PROFILE);
+          this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
+          this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
           this.sending = false;
           this.$router.push("/dashboard");
         })
