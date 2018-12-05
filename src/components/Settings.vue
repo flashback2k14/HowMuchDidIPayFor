@@ -190,6 +190,9 @@ import { ActionType, StateProperty } from "../helper";
 
 export default {
   name: "Settings",
+  computed: {
+    ...mapState([StateProperty.CURRENT_USER, StateProperty.USER_SETTINGS])
+  },
   data() {
     return {
       showDialog: false,
@@ -204,9 +207,6 @@ export default {
         expirationDate: null
       }
     };
-  },
-  computed: {
-    ...mapState([StateProperty.CURRENT_USER, StateProperty.USER_SETTINGS])
   },
   methods: {
     clearForm() {

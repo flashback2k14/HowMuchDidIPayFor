@@ -181,6 +181,13 @@ import { ActionType, MutationType, StateProperty } from "../helper";
 
 export default {
   name: "Billings",
+  computed: {
+    ...mapState([
+      StateProperty.CURRENT_USER,
+      StateProperty.CURRENT_BILLING_ENTRIES,
+      StateProperty.USER_BILLINGS
+    ])
+  },
   data() {
     return {
       showDialog: false,
@@ -191,13 +198,6 @@ export default {
         year: null
       }
     };
-  },
-  computed: {
-    ...mapState([
-      StateProperty.CURRENT_USER,
-      StateProperty.CURRENT_BILLING_ENTRIES,
-      StateProperty.USER_BILLINGS
-    ])
   },
   methods: {
     onBillingSelect(item) {

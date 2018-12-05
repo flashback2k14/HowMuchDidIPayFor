@@ -99,6 +99,24 @@ import { ActionType, StateProperty } from "../helper";
 
 export default {
   name: "Dashboard",
+  computed: {
+    ...mapState([
+      StateProperty.CURRENT_USER,
+      StateProperty.CURRENT_SETTING,
+      StateProperty.CURRENT_BILLINGS
+    ]),
+    currentBillingIntervals: function() {
+      if (this.currentBillings) {
+        return this.currentBillings.map(billing => {
+          return {
+            text: `${billing.month}.${billing.year}`,
+            value: billing.id
+          };
+        });
+      }
+      return [{ text: null, value: null }];
+    }
+  },
   data() {
     return {
       showDialog: false,
@@ -112,24 +130,6 @@ export default {
         date: null
       }
     };
-  },
-  computed: {
-    ...mapState([
-      StateProperty.CURRENT_BILLINGS,
-      StateProperty.CURRENT_SETTING,
-      StateProperty.CURRENT_USER
-    ]),
-    currentBillingIntervals: function() {
-      if (this.currentBillings) {
-        return this.currentBillings.map(billing => {
-          return {
-            text: `${billing.month}.${billing.year}`,
-            value: billing.id
-          };
-        });
-      }
-      return [{ text: null, value: null }];
-    }
   },
   methods: {
     setBillingAsPaid(item) {
