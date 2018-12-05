@@ -58,6 +58,7 @@
 <script>
 import { mapState } from "vuex";
 import { fb } from "./config/firebaseConfig";
+import { ActionType } from "./helper";
 
 export default {
   name: "App",
@@ -69,7 +70,7 @@ export default {
       fb.auth
         .signOut()
         .then(() => {
-          this.$store.dispatch("clearState");
+          this.$store.dispatch(ActionType.CLEAR_STATE);
           this.$router.push("/login");
         })
         .catch(error => {

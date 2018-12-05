@@ -1,9 +1,13 @@
 <template>
   <div class="md-layout md-alignment-center-center login-container_height">
+    <!-- login control -->
     <div class="md-layout-item md-size-50 md-small-size-100">
-      <form novalidate class="md-layout" @submit.prevent="validateUser">
-        <md-card class="md-layout-item" md-with-hover>
-          <md-card-header> <div class="md-title">Login</div> </md-card-header>
+      <form novalidate @submit.prevent="validateUser">
+        <md-card md-with-hover>
+          <md-card-header>
+            <div class="md-title">Login</div>
+            <md-divider></md-divider>
+          </md-card-header>
 
           <md-card-content>
             <md-field>
@@ -29,13 +33,13 @@
                 :disabled="sending"
               />
             </md-field>
-          </md-card-content>
 
-          <md-progress-bar
-            class="md-accent"
-            md-mode="indeterminate"
-            v-if="sending"
-          />
+            <md-progress-bar
+              class="md-accent"
+              md-mode="indeterminate"
+              v-if="sending"
+            />
+          </md-card-content>
 
           <md-card-actions>
             <md-button type="submit" class="md-primary" :disabled="sending">
@@ -45,6 +49,18 @@
         </md-card>
       </form>
     </div>
+    <!-- snackbar -->
+    <md-snackbar
+      :md-active.sync="errors.showSnackbar"
+      :md-duration="Infinity"
+      md-position="center"
+      md-persistent
+    >
+      <span>{{ errors.message }}</span>
+      <md-button class="md-primary" @click="closeErrorSnackbar();"
+        >Schließen</md-button
+      >
+    </md-snackbar>
   </div>
 </template>
 
@@ -57,6 +73,10 @@ export default {
     form: {
       email: null,
       password: null
+    },
+    errors: {
+      showSnackbar: false,
+      message: null
     },
     sending: false
   }),
@@ -75,8 +95,14 @@ export default {
         })
         .catch(error => {
           console.error(error);
+          this.errors.message = error.message;
+          this.errors.showSnackbar = true;
           this.sending = false;
         });
+    },
+    closeErrorSnackbar() {
+      this.errors.showSnackbar = false;
+      this.errors.message = null;
     }
   }
 };

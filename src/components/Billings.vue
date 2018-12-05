@@ -193,7 +193,7 @@ export default {
     onBillingSelect(item) {
       if (item) {
         this.$store.commit("setCurrentSelectedBilling", item);
-        this.$store.dispatch("fetchCurrentBillingEntries");
+        this.$store.dispatch("fetchUserBillingEntriesForSelection");
       } else {
         this.$store.commit("setCurrentSelectedBilling", null);
         this.$store.commit("setCurrentBillingEntries", []);

@@ -1,7 +1,7 @@
 <template>
   <div class="md-layout md-alignment-top-center dashboard-container_height">
     <div class="md-layout-item md-size-95">
-      <div v-if="currentBillings && currentBillings.length === 0">
+      <div v-if="currentBillings === null || currentBillings.length === 0">
         <md-empty-state
           md-icon="block"
           md-label="Dashboard"

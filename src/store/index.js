@@ -1,15 +1,18 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import { fb } from "../config/firebaseConfig";
+import { extendDocuments, ActionType, MutationType } from "../helper";
 
 Vue.use(Vuex);
 
 fb.auth.onAuthStateChanged(user => {
   if (user) {
-    store.commit("setCurrentUser", user);
-    store.dispatch("fetchUserProfile");
-    store.dispatch("fetchUserSettings");
-    store.dispatch("fetchUserBillings");
+    store.commit(MutationType.SET_CURRENT_USER, user);
+    store.dispatch(ActionType.FETCH_USER_PROFILE);
+    store.dispatch(ActionType.FETCH_USER_SETTINGS);
+    store.dispatch(ActionType.FETCH_USER_BILLINGS);
+  } else {
+    store.dispatch(ActionType.CLEAR_STATE);
   }
 });
 
@@ -26,14 +29,14 @@ export const store = new Vuex.Store({
   },
   actions: {
     clearState({ commit }) {
-      commit("setCurrentUser", null);
-      commit("setUserProfile", {});
-      commit("setUserSettings", []);
-      commit("setUserBillings", []);
-      commit("setCurrentSetting", null);
-      commit("setCurrentBillings", null);
-      commit("setCurrentSelectedBilling", null);
-      commit("setCurrentBillingEntries", []);
+      commit(MutationType.SET_CURRENT_USER, null);
+      commit(MutationType.SET_CURRENT_SETTING, null);
+      commit(MutationType.SET_CURRENT_BILLINGS, null);
+      commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
+      commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
+      commit(MutationType.SET_USER_PROFILE, {});
+      commit(MutationType.SET_USER_SETTINGS, []);
+      commit(MutationType.SET_USER_BILLINGS, []);
     },
     fetchUserProfile({ commit, state }) {
       fb.users
@@ -41,7 +44,7 @@ export const store = new Vuex.Store({
         .get()
         .then(res => {
           if (res.exists) {
-            commit("setUserProfile", res.data());
+            commit(MutationType.SET_USER_PROFILE, res.data());
           }
         })
         .catch(error => {
@@ -54,7 +57,9 @@ export const store = new Vuex.Store({
         .get()
         .then(res => {
           if (!res.empty) {
-            commit("setUserSettings", res.docs);
+            const docs = extendDocuments(res.docs);
+            commit(MutationType.SET_CURRENT_SETTING, docs);
+            commit(MutationType.SET_USER_SETTINGS, docs);
           }
         })
         .catch(error => {
@@ -67,20 +72,22 @@ export const store = new Vuex.Store({
         .get()
         .then(res => {
           if (!res.empty) {
-            commit("setUserBillings", res.docs);
+            const docs = extendDocuments(res.docs);
+            commit(MutationType.SET_CURRENT_BILLINGS, docs);
+            commit(MutationType.SET_USER_BILLINGS, docs);
           }
         })
         .catch(error => {
           console.error(error);
         });
     },
-    fetchCurrentBillingEntries({ commit, state }) {
+    fetchUserBillingEntriesForSelection({ commit, state }) {
       fb.billingEntries
         .where("billingId", "==", state.currentSelectedBilling.id)
         .get()
         .then(res => {
           if (!res.empty) {
-            commit("setCurrentBillingEntries", res.docs);
+            commit(MutationType.SET_CURRENT_BILLING_ENTRIES, res.docs);
           }
         })
         .catch(error => {
@@ -89,56 +96,39 @@ export const store = new Vuex.Store({
     }
   },
   mutations: {
-    setCurrentUser(state, val) {
-      state.currentUser = val;
+    setCurrentUser(state, user) {
+      state.currentUser = user;
     },
-    setCurrentSetting(state, val) {
-      state.currentSetting = val;
+    setCurrentSetting(state, docs) {
+      state.currentSetting =
+        docs === null
+          ? null
+          : docs.filter(
+              item => item.expirationDate.seconds * 1000 > Date.now()
+            )[0];
     },
-    setCurrentBillings(state, val) {
-      state.currentBillings = val;
+    setCurrentBillings(state, docs) {
+      state.currentBillings =
+        docs === null ? null : docs.filter(item => item.isPaid === false);
     },
-    setCurrentSelectedBilling(state, val) {
-      state.currentSelectedBilling = val;
+    setCurrentSelectedBilling(state, selectedBilling) {
+      state.currentSelectedBilling = selectedBilling;
     },
-    setCurrentBillingEntries(state, val) {
-      state.currentBillingEntries = val
-        .map((item, index) => {
-          let entry = item.data();
-          entry.id = item.id;
-          entry.pos = ++index;
-          return entry;
-        })
-        .sort((a, b) => b.date.seconds - a.date.seconds);
+    setCurrentBillingEntries(state, docs) {
+      state.currentBillingEntries = extendDocuments(docs).sort(
+        (a, b) => b.date.seconds - a.date.seconds
+      );
     },
-    setUserProfile(state, val) {
-      state.userProfile = val;
+    setUserProfile(state, profile) {
+      state.userProfile = profile;
     },
-    setUserSettings(state, val) {
-      const settings = val
-        .map((item, index) => {
-          let setting = item.data();
-          setting.id = item.id;
-          setting.pos = ++index;
-          return setting;
-        })
-        .sort((a, b) => b.pos - a.pos);
-      state.userSettings = settings;
-      state.currentSetting = settings.filter(
-        item => item.expirationDate.seconds * 1000 > Date.now()
-      )[0];
+    setUserSettings(state, docs) {
+      state.userSettings = docs.sort((a, b) => b.pos - a.pos);
     },
-    setUserBillings(state, val) {
-      const billings = val
-        .map((item, index) => {
-          let billing = item.data();
-          billing.id = item.id;
-          billing.pos = ++index;
-          return billing;
-        })
-        .sort((a, b) => b.year * 1000 + b.month - (a.year * 1000 + a.month));
-      state.userBillings = billings;
-      state.currentBillings = billings.filter(item => item.isPaid === false);
+    setUserBillings(state, docs) {
+      state.userBillings = docs.sort(
+        (a, b) => b.year * 1000 + b.month - (a.year * 1000 + a.month)
+      );
     }
   }
 });
