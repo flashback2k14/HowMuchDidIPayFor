@@ -8,11 +8,11 @@
         </div>
 
         <div class="md-toolbar-section-end">
-          {{ userProfile.name }}
+          <span v-text="profileName"></span>
           <md-button
             class="md-icon-button"
             @click="logoutUser"
-            :disabled="!currentUser"
+            :disabled="shouldDisableUiControls"
           >
             <md-icon>perm_identity</md-icon>
             <md-tooltip md-direction="bottom">Logout</md-tooltip>
@@ -30,21 +30,21 @@
             id="tabDashboard"
             md-label="Übersicht"
             to="/dashboard"
-            :md-disabled="!currentUser"
+            :md-disabled="shouldDisableUiControls"
           >
           </md-tab>
           <md-tab
             id="tabBillings"
             md-label="Abrechnungen"
             to="/billings"
-            :md-disabled="!currentUser"
+            :md-disabled="shouldDisableUiControls"
           >
           </md-tab>
           <md-tab
             id="tabSettings"
             md-label="Einstellungen"
             to="/settings"
-            :md-disabled="!currentUser"
+            :md-disabled="shouldDisableUiControls"
           >
           </md-tab>
         </md-tabs>
@@ -60,7 +60,7 @@
         md-position="center"
         md-persistent
       >
-        <span>{{ currentError && currentError.message }}</span>
+        <span v-text="errorMessage"></span>
         <md-button class="md-primary" @click="closeErrorSnackbar();"
           >Schließen</md-button
         >
@@ -82,6 +82,9 @@ export default {
       StateProperty.CURRENT_ERROR,
       StateProperty.USER_PROFILE
     ]),
+    shouldDisableUiControls: function() {
+      return this[StateProperty.CURRENT_USER] === null;
+    },
     showErrorSnackbar: {
       get() {
         return this[StateProperty.CURRENT_ERROR] !== null;
@@ -89,6 +92,16 @@ export default {
       set(newValue) {
         // Workaround, because VUE need a setter, but i didn't
       }
+    },
+    errorMessage: function() {
+      return this[StateProperty.CURRENT_ERROR] !== null
+        ? this[StateProperty.CURRENT_ERROR].message
+        : null;
+    },
+    profileName: function() {
+      return this[StateProperty.USER_PROFILE] !== null
+        ? this[StateProperty.USER_PROFILE].name
+        : null;
     }
   },
   methods: {
@@ -104,7 +117,7 @@ export default {
         );
     },
     setActiveTab() {
-      return this.currentUser === null ? -1 : "tabDashboard";
+      return this[StateProperty.CURRENT_USER] === null ? -1 : "tabDashboard";
     },
     closeErrorSnackbar() {
       this.$store.commit(MutationType.SET_CURRENT_ERROR, null);
