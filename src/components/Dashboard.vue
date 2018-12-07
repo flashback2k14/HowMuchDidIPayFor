@@ -98,7 +98,7 @@
 <script>
 import { mapState } from "vuex";
 import { fb } from "../config/firebaseConfig.js";
-import { ActionType, StateProperty } from "../helper";
+import { ActionType, MutationType, StateProperty } from "../helper";
 
 export default {
   name: "Dashboard",
@@ -154,9 +154,9 @@ export default {
           this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
           this.privates.closableBilling = {};
         })
-        .catch(error => {
-          console.error(error);
-        });
+        .catch(error =>
+          this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
+        );
     },
     onCloseBillingCancel() {
       this.privates.closableBilling = {};
@@ -205,13 +205,13 @@ export default {
               this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
               this.closeDialog();
             })
-            .catch(error => {
-              console.error(error);
-            });
+            .catch(error =>
+              this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
+            );
         })
-        .catch(error => {
-          console.error(error);
-        });
+        .catch(error =>
+          this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
+        );
     }
   }
 };

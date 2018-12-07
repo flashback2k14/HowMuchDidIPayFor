@@ -51,19 +51,45 @@
       </div>
     </md-app-toolbar>
 
-    <md-app-content> <router-view /> </md-app-content>
+    <md-app-content>
+      <router-view />
+      <!-- snackbar -->
+      <md-snackbar
+        :md-active.sync="showErrorSnackbar"
+        :md-duration="Infinity"
+        md-position="center"
+        md-persistent
+      >
+        <span>{{ currentError && currentError.message }}</span>
+        <md-button class="md-primary" @click="closeErrorSnackbar();"
+          >Schließen</md-button
+        >
+      </md-snackbar>
+    </md-app-content>
   </md-app>
 </template>
 
 <script>
 import { mapState } from "vuex";
 import { fb } from "./config/firebaseConfig";
-import { ActionType, StateProperty } from "./helper";
+import { ActionType, MutationType, StateProperty } from "./helper";
 
 export default {
   name: "App",
   computed: {
-    ...mapState([StateProperty.CURRENT_USER, StateProperty.USER_PROFILE])
+    ...mapState([
+      StateProperty.CURRENT_USER,
+      StateProperty.CURRENT_ERROR,
+      StateProperty.USER_PROFILE
+    ]),
+    showErrorSnackbar: {
+      get() {
+        return this[StateProperty.CURRENT_ERROR] !== null;
+      },
+      set(newValue) {
+        // Workaround, because VUE need a setter, but i didn't
+      }
+    }
   },
   methods: {
     logoutUser() {
@@ -73,12 +99,15 @@ export default {
           this.$store.dispatch(ActionType.CLEAR_STATE);
           this.$router.push("/login");
         })
-        .catch(error => {
-          console.error(error);
-        });
+        .catch(error =>
+          this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
+        );
     },
     setActiveTab() {
       return this.currentUser === null ? -1 : "tabDashboard";
+    },
+    closeErrorSnackbar() {
+      this.$store.commit(MutationType.SET_CURRENT_ERROR, null);
     }
   }
 };

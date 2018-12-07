@@ -187,7 +187,7 @@
 <script>
 import { mapState } from "vuex";
 import { fb } from "../config/firebaseConfig.js";
-import { ActionType, StateProperty } from "../helper";
+import { ActionType, MutationType, StateProperty } from "../helper";
 
 export default {
   name: "Settings",
@@ -241,9 +241,9 @@ export default {
           this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
           this.closeDialog();
         })
-        .catch(error => {
-          console.log(error);
-        });
+        .catch(error =>
+          this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
+        );
     },
     editSetting() {
       fb.settings
@@ -259,9 +259,9 @@ export default {
           this.privates.editableSetting = null;
           this.closeDialogEdit();
         })
-        .catch(error => {
-          console.error(error);
-        });
+        .catch(error =>
+          this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
+        );
     },
     showEditDialog(item) {
       this.privates.editableSetting = item;
@@ -283,9 +283,9 @@ export default {
           this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
           this.privates.deletedableSetting = null;
         })
-        .catch(error => {
-          console.log(error);
-        });
+        .catch(error =>
+          this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
+        );
     },
     onDeleteCancel() {
       this.privates.deletedableSetting = null;

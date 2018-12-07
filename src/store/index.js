@@ -23,6 +23,7 @@ export const store = new Vuex.Store({
     currentBillings: null,
     currentSelectedBilling: null,
     currentBillingEntries: [],
+    currentError: null,
     userProfile: {},
     userSettings: [],
     userBillings: []
@@ -34,9 +35,13 @@ export const store = new Vuex.Store({
       commit(MutationType.SET_CURRENT_BILLINGS, null);
       commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
       commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
+      commit(MutationType.SET_CURRENT_ERROR, null);
       commit(MutationType.SET_USER_PROFILE, {});
       commit(MutationType.SET_USER_SETTINGS, []);
       commit(MutationType.SET_USER_BILLINGS, []);
+    },
+    clearError({ commit }) {
+      commit(MutationType.SET_CURRENT_ERROR, null);
     },
     fetchUserProfile({ commit, state }) {
       fb.users
@@ -47,9 +52,7 @@ export const store = new Vuex.Store({
             commit(MutationType.SET_USER_PROFILE, res.data());
           }
         })
-        .catch(error => {
-          console.error(error);
-        });
+        .catch(error => commit(MutationType.SET_CURRENT_ERROR, error));
     },
     fetchUserSettings({ commit, state }) {
       fb.settings
@@ -62,9 +65,7 @@ export const store = new Vuex.Store({
             commit(MutationType.SET_USER_SETTINGS, docs);
           }
         })
-        .catch(error => {
-          console.error(error);
-        });
+        .catch(error => commit(MutationType.SET_CURRENT_ERROR, error));
     },
     fetchUserBillings({ commit, state }) {
       fb.billings
@@ -77,9 +78,7 @@ export const store = new Vuex.Store({
             commit(MutationType.SET_USER_BILLINGS, docs);
           }
         })
-        .catch(error => {
-          console.error(error);
-        });
+        .catch(error => commit(MutationType.SET_CURRENT_ERROR, error));
     },
     fetchUserBillingEntriesForSelection({ commit, state }) {
       fb.billingEntries
@@ -90,9 +89,7 @@ export const store = new Vuex.Store({
             commit(MutationType.SET_CURRENT_BILLING_ENTRIES, res.docs);
           }
         })
-        .catch(error => {
-          console.error(error);
-        });
+        .catch(error => commit(MutationType.SET_CURRENT_ERROR, error));
     }
   },
   mutations: {
@@ -118,6 +115,9 @@ export const store = new Vuex.Store({
       state.currentBillingEntries = extendDocuments(docs).sort(
         (a, b) => b.date.seconds - a.date.seconds
       );
+    },
+    setCurrentError(state, error) {
+      state.currentError = error;
     },
     setUserProfile(state, profile) {
       state.userProfile = profile;

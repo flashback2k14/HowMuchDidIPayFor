@@ -237,9 +237,9 @@ export default {
           this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
           this.closeDialog();
         })
-        .catch(error => {
-          console.log(error);
-        });
+        .catch(error =>
+          this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
+        );
     },
     showDeleteDialog(item) {
       this.privates.deletedableBilling = item;
@@ -274,7 +274,7 @@ export default {
 
         this.privates.deletedableBilling = null;
       } catch (error) {
-        console.error(error);
+        this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }
     },
     onDeleteCancel() {

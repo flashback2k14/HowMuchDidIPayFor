@@ -53,18 +53,6 @@
         </md-card>
       </form>
     </div>
-    <!-- snackbar -->
-    <md-snackbar
-      :md-active.sync="errors.showSnackbar"
-      :md-duration="Infinity"
-      md-position="center"
-      md-persistent
-    >
-      <span>{{ errors.message }}</span>
-      <md-button class="md-primary" @click="closeErrorSnackbar();"
-        >Schließen</md-button
-      >
-    </md-snackbar>
   </div>
 </template>
 
@@ -75,10 +63,6 @@ import { ActionType, MutationType } from "../helper";
 export default {
   name: "Login",
   data: () => ({
-    errors: {
-      showSnackbar: false,
-      message: null
-    },
     form: {
       email: null,
       password: null
@@ -101,15 +85,9 @@ export default {
           this.$router.push("/dashboard");
         })
         .catch(error => {
-          console.error(error);
-          this.errors.message = error.message;
-          this.errors.showSnackbar = true;
+          this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
           this.flags.waitingForRequestAnswer = false;
         });
-    },
-    closeErrorSnackbar() {
-      this.errors.showSnackbar = false;
-      this.errors.message = null;
     }
   }
 };

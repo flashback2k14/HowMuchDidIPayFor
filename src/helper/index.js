@@ -1,5 +1,6 @@
 export const ActionType = {
   CLEAR_STATE: "clearState",
+  CLEAR_ERROR: "clearError",
   FETCH_USER_PROFILE: "fetchUserProfile",
   FETCH_USER_SETTINGS: "fetchUserSettings",
   FETCH_USER_BILLINGS: "fetchUserBillings",
@@ -13,6 +14,7 @@ export const MutationType = {
   SET_CURRENT_BILLINGS: "setCurrentBillings",
   SET_CURRENT_SELECTED_BILLING: "setCurrentSelectedBilling",
   SET_CURRENT_BILLING_ENTRIES: "setCurrentBillingEntries",
+  SET_CURRENT_ERROR: "setCurrentError",
   SET_USER_PROFILE: "setUserProfile",
   SET_USER_SETTINGS: "setUserSettings",
   SET_USER_BILLINGS: "setUserBillings"
@@ -24,6 +26,7 @@ export const StateProperty = {
   CURRENT_BILLINGS: "currentBillings",
   CURRENT_SELECTED_BILLING: "currentSelectedBilling",
   CURRENT_BILLING_ENTRIES: "currentBillingEntries",
+  CURRENT_ERROR: "currentError",
   USER_PROFILE: "userProfile",
   USER_SETTINGS: "userSettings",
   USER_BILLINGS: "userBillings"
