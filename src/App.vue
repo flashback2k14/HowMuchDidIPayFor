@@ -15,7 +15,7 @@
             :disabled="shouldDisableUiControls"
           >
             <md-icon>perm_identity</md-icon>
-            <md-tooltip md-direction="bottom">Logout</md-tooltip>
+            <md-tooltip md-direction="bottom">Abmeldung</md-tooltip>
           </md-button>
         </div>
       </div>

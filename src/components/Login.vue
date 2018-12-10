@@ -2,7 +2,7 @@
   <div class="md-layout md-alignment-center-center login-container_height">
     <!-- login control -->
     <div class="md-layout-item md-size-50 md-small-size-100">
-      <form novalidate @submit.prevent="validateUser">
+      <form novalidate @submit.prevent="handleUserLogin">
         <md-card md-with-hover>
           <md-card-header>
             <div class="md-title">Login</div>
@@ -47,7 +47,7 @@
               class="md-primary"
               :disabled="flags.waitingForRequestAnswer"
             >
-              Login
+              Anmeldung
             </md-button>
           </md-card-actions>
         </md-card>
@@ -72,7 +72,7 @@ export default {
     }
   }),
   methods: {
-    async validateUser() {
+    async handleUserLogin() {
       this.flags.waitingForRequestAnswer = true;
       try {
         const result = await auth.login(this.form);
