@@ -173,7 +173,7 @@
 <script>
 import { mapState } from "vuex";
 import { ActionType, MutationType, StateProperty } from "@/helper";
-import { creator, deletter, getter } from "@/database";
+import { creator, deletter, reader } from "@/database";
 
 export default {
   name: "Billings",
@@ -255,7 +255,7 @@ export default {
     async handleConfirmDeleteBilling() {
       try {
         await deletter.billing(this.privates.deletedableBilling.id);
-        const entries = await getter.billingEntries(
+        const entries = await reader.billingEntries(
           this.privates.deletedableBilling.id
         );
 
