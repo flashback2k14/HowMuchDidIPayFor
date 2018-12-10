@@ -28,11 +28,4 @@ const settings = db.collection("settings");
 const billings = db.collection("billings");
 const billingEntries = db.collection("billingEntries");
 
-export const fb = {
-  db,
-  auth,
-  users,
-  settings,
-  billings,
-  billingEntries
-};
+export { auth, users, settings, billings, billingEntries };

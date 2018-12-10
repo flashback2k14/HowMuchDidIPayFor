@@ -57,8 +57,8 @@
 </template>
 
 <script>
-import { fb } from "../config/firebaseConfig.js";
-import { ActionType, MutationType } from "../helper";
+import { ActionType, MutationType } from "@/helper";
+import { auth } from "@/database";
 
 export default {
   name: "Login",
@@ -72,22 +72,20 @@ export default {
     }
   }),
   methods: {
-    validateUser() {
+    async validateUser() {
       this.flags.waitingForRequestAnswer = true;
-      fb.auth
-        .signInWithEmailAndPassword(this.form.email, this.form.password)
-        .then(result => {
-          this.$store.commit(MutationType.SET_CURRENT_USER, result.user);
-          this.$store.dispatch(ActionType.FETCH_USER_PROFILE);
-          this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
-          this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
-          this.flags.waitingForRequestAnswer = false;
-          this.$router.push("/dashboard");
-        })
-        .catch(error => {
-          this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
-          this.flags.waitingForRequestAnswer = false;
-        });
+      try {
+        const result = await auth.login(this.form);
+        this.$store.commit(MutationType.SET_CURRENT_USER, result.user);
+        this.$store.dispatch(ActionType.FETCH_USER_PROFILE);
+        this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
+        this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
+        this.flags.waitingForRequestAnswer = false;
+        this.$router.push("/dashboard");
+      } catch (error) {
+        this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
+        this.flags.waitingForRequestAnswer = false;
+      }
     }
   }
 };

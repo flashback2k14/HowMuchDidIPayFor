@@ -6,7 +6,7 @@ import "vue-material/dist/theme/black-green-dark.css";
 import App from "./App";
 import router from "./router";
 import { store } from "./store";
-import { fb } from "./config/firebaseConfig";
+import { auth } from "./config/firebaseConfig";
 import registerServiceWorker from "./config/registerServiceWorker";
 
 Vue.use(VueMaterial);
@@ -14,7 +14,7 @@ Vue.config.productionTip = false;
 
 let app;
 
-fb.auth.onAuthStateChanged(user => {
+auth.onAuthStateChanged(user => {
   if (!app) {
     const formatter = new Intl.DateTimeFormat("de-DE", {
       year: "numeric",

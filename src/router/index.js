@@ -6,7 +6,7 @@ import Dashboard from "@/components/Dashboard";
 import Billings from "@/components/Billings";
 import Settings from "@/components/Settings";
 
-import { fb } from "@/config/firebaseConfig";
+import { auth } from "@/config/firebaseConfig";
 
 Vue.use(Router);
 
@@ -52,7 +52,7 @@ router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(
     routeRecord => routeRecord.meta.requiresAuth
   );
-  const currentUser = fb.auth.currentUser;
+  const currentUser = auth.currentUser;
   if (requiresAuth && !currentUser) {
     next("/login");
   } else if (requiresAuth && currentUser) {

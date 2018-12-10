@@ -97,8 +97,8 @@
 
 <script>
 import { mapState } from "vuex";
-import { fb } from "../config/firebaseConfig.js";
-import { ActionType, MutationType, StateProperty } from "../helper";
+import { ActionType, MutationType, StateProperty } from "@/helper";
+import { creator, updater } from "@/database";
 
 export default {
   name: "Dashboard",
@@ -143,20 +143,17 @@ export default {
       this.privates.closableBilling = item;
       this.dialogs.isCloseBillingVisible = !this.dialogs.isCloseBillingVisible;
     },
-    onCloseBillingConfirm() {
-      fb.billings
-        .doc(this.privates.closableBilling.id)
-        .update({
-          billingSaldo: parseFloat(this.privates.closableBilling.billingSaldo),
-          isPaid: true
-        })
-        .then(() => {
-          this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
-          this.privates.closableBilling = {};
-        })
-        .catch(error =>
-          this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
+    async onCloseBillingConfirm() {
+      try {
+        await updater.billing(
+          this.privates.closableBilling.id,
+          parseFloat(this.privates.closableBilling.billingSaldo)
         );
+        this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
+        this.privates.closableBilling = {};
+      } catch (error) {
+        this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
+      }
     },
     onCloseBillingCancel() {
       this.privates.closableBilling = {};
@@ -169,49 +166,34 @@ export default {
       this.form.date = null;
       this.dialogs.isCreateEntryVisible = !this.dialogs.isCreateEntryVisible;
     },
-    createBillingEntry() {
-      // 1. save entry
-      fb.billingEntries
-        .add({
-          billingId: this.form.billing,
-          date: this.form.date,
-          hasAfternoonSnack: !!this.form.hasAfternoonSnack,
-          hasBreakfast: !!this.form.hasBreakfast,
-          hasLunch: !!this.form.hasLunch
-        })
-        .then(res => {
-          // 2. get current billing saldo
-          const billing = this.currentBillings.filter(
-            billing => billing.id === this.form.billing
-          );
-          let newCurrentSaldo = billing[0].currentSaldo;
-          // 3. add new values
-          if (this.form.hasBreakfast) {
-            newCurrentSaldo += this.currentSetting.breakfastPrize;
-          }
-          if (this.form.hasLunch) {
-            newCurrentSaldo += this.currentSetting.lunchPrize;
-          }
-          if (this.form.hasAfternoonSnack) {
-            newCurrentSaldo += this.currentSetting.afternoonSnackPrize;
-          }
-          // 4. update currentsaldo
-          fb.billings
-            .doc(this.form.billing)
-            .update({
-              currentSaldo: newCurrentSaldo
-            })
-            .then(() => {
-              this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
-              this.closeDialog();
-            })
-            .catch(error =>
-              this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
-            );
-        })
-        .catch(error =>
-          this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
-        );
+    _calcNewCurrentSaldo() {
+      const billing = this.currentBillings.filter(
+        billing => billing.id === this.form.billing
+      );
+
+      let saldo = billing[0].currentSaldo;
+
+      if (this.form.hasBreakfast) {
+        saldo += this.currentSetting.breakfastPrize;
+      }
+      if (this.form.hasLunch) {
+        saldo += this.currentSetting.lunchPrize;
+      }
+      if (this.form.hasAfternoonSnack) {
+        saldo += this.currentSetting.afternoonSnackPrize;
+      }
+      return saldo;
+    },
+    async createBillingEntry() {
+      try {
+        await creator.billingEntry(this.form);
+        const newCurrentSaldo = this._calcNewCurrentSaldo();
+        await updater.billingCurrentSaldo(this.form.billing, newCurrentSaldo);
+        this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
+        this.closeDialog();
+      } catch (error) {
+        this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
+      }
     }
   }
 };

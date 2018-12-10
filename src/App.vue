@@ -71,7 +71,7 @@
 
 <script>
 import { mapState } from "vuex";
-import { fb } from "./config/firebaseConfig";
+import { auth } from "./database";
 import { ActionType, MutationType, StateProperty } from "./helper";
 
 export default {
@@ -105,16 +105,14 @@ export default {
     }
   },
   methods: {
-    logoutUser() {
-      fb.auth
-        .signOut()
-        .then(() => {
-          this.$store.dispatch(ActionType.CLEAR_STATE);
-          this.$router.push("/login");
-        })
-        .catch(error =>
-          this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
-        );
+    async logoutUser() {
+      try {
+        await auth.logout();
+        this.$store.dispatch(ActionType.CLEAR_STATE);
+        this.$router.push("/login");
+      } catch (error) {
+        this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
+      }
     },
     setActiveTab() {
       return this[StateProperty.CURRENT_USER] === null ? -1 : "tabDashboard";

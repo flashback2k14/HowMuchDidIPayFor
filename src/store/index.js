@@ -1,11 +1,12 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { fb } from "../config/firebaseConfig";
-import { extendDocuments, ActionType, MutationType } from "../helper";
+import { extendDocuments, ActionType, MutationType } from "@/helper";
+import { getter } from "@/database";
+import { auth } from "@/config/firebaseConfig";
 
 Vue.use(Vuex);
 
-fb.auth.onAuthStateChanged(user => {
+auth.onAuthStateChanged(user => {
   if (user) {
     store.commit(MutationType.SET_CURRENT_USER, user);
     store.dispatch(ActionType.FETCH_USER_PROFILE);
@@ -43,53 +44,58 @@ export const store = new Vuex.Store({
     clearError({ commit }) {
       commit(MutationType.SET_CURRENT_ERROR, null);
     },
-    fetchUserProfile({ commit, state }) {
-      fb.users
-        .doc(state.currentUser.uid)
-        .get()
-        .then(res => {
-          if (res.exists) {
-            commit(MutationType.SET_USER_PROFILE, res.data());
-          }
-        })
-        .catch(error => commit(MutationType.SET_CURRENT_ERROR, error));
+    async fetchUserProfile({ commit, state }) {
+      try {
+        const result = await getter.profile(state.currentUser.uid);
+        if (!result.exists) {
+          commit(MutationType.SET_CURRENT_ERROR, {
+            message: "Es wurde kein Benutzerprofil gefunden."
+          });
+          return;
+        }
+        commit(MutationType.SET_USER_PROFILE, result.data());
+      } catch (error) {
+        commit(MutationType.SET_CURRENT_ERROR, error);
+      }
     },
-    fetchUserSettings({ commit, state }) {
-      fb.settings
-        .where("userId", "==", state.currentUser.uid)
-        .get()
-        .then(res => {
-          if (!res.empty) {
-            const docs = extendDocuments(res.docs);
-            commit(MutationType.SET_CURRENT_SETTING, docs);
-            commit(MutationType.SET_USER_SETTINGS, docs);
-          }
-        })
-        .catch(error => commit(MutationType.SET_CURRENT_ERROR, error));
+    async fetchUserSettings({ commit, state }) {
+      try {
+        const result = await getter.settings(state.currentUser.uid);
+        if (result.empty) {
+          return;
+        }
+        const docs = extendDocuments(result.docs);
+        commit(MutationType.SET_CURRENT_SETTING, docs);
+        commit(MutationType.SET_USER_SETTINGS, docs);
+      } catch (error) {
+        commit(MutationType.SET_CURRENT_ERROR, error);
+      }
     },
-    fetchUserBillings({ commit, state }) {
-      fb.billings
-        .where("userId", "==", state.currentUser.uid)
-        .get()
-        .then(res => {
-          if (!res.empty) {
-            const docs = extendDocuments(res.docs);
-            commit(MutationType.SET_CURRENT_BILLINGS, docs);
-            commit(MutationType.SET_USER_BILLINGS, docs);
-          }
-        })
-        .catch(error => commit(MutationType.SET_CURRENT_ERROR, error));
+    async fetchUserBillings({ commit, state }) {
+      try {
+        const result = await getter.billings(state.currentUser.uid);
+        if (result.empty) {
+          return;
+        }
+        const docs = extendDocuments(result.docs);
+        commit(MutationType.SET_CURRENT_BILLINGS, docs);
+        commit(MutationType.SET_USER_BILLINGS, docs);
+      } catch (error) {
+        commit(MutationType.SET_CURRENT_ERROR, error);
+      }
     },
-    fetchUserBillingEntriesForSelection({ commit, state }) {
-      fb.billingEntries
-        .where("billingId", "==", state.currentSelectedBilling.id)
-        .get()
-        .then(res => {
-          if (!res.empty) {
-            commit(MutationType.SET_CURRENT_BILLING_ENTRIES, res.docs);
-          }
-        })
-        .catch(error => commit(MutationType.SET_CURRENT_ERROR, error));
+    async fetchUserBillingEntriesForSelection({ commit, state }) {
+      try {
+        const result = await getter.billingEntries(
+          state.currentSelectedBilling.id
+        );
+        if (result.empty) {
+          return;
+        }
+        commit(MutationType.SET_CURRENT_BILLING_ENTRIES, result.docs);
+      } catch (error) {
+        commit(MutationType.SET_CURRENT_ERROR, error);
+      }
     }
   },
   mutations: {

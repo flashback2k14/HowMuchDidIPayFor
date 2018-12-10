@@ -1,0 +1,102 @@
+import {
+  auth as firebaseAuth,
+  billings,
+  billingEntries,
+  users,
+  settings
+} from "@/config/firebaseConfig";
+
+export const auth = {
+  login: async function(formData) {
+    return await firebaseAuth.signInWithEmailAndPassword(
+      formData.email,
+      formData.password
+    );
+  },
+  logout: async function() {
+    return await firebaseAuth.signOut();
+  }
+};
+
+export const getter = {
+  profile: async function(userId) {
+    return await users.doc(userId).get();
+  },
+  settings: async function(userId) {
+    return await settings.where("userId", "==", userId).get();
+  },
+  billings: async function(userId) {
+    return await billings.where("userId", "==", userId).get();
+  },
+  billingEntries: async function(billingId) {
+    return await billingEntries.where("billingId", "==", billingId).get();
+  }
+};
+
+export const creator = {
+  setting: async function(userId, formData) {
+    return await settings.add({
+      breakfastPrize: parseFloat(formData.breakfastPrize),
+      lunchPrize: parseFloat(formData.lunchPrize),
+      afternoonSnackPrize: parseFloat(formData.afternoonSnackPrize),
+      expirationDate: formData.expirationDate,
+      userId: userId
+    });
+  },
+  billing: async function(userId, formData) {
+    return await billings.add({
+      billingSaldo: 0,
+      currentSaldo: 0,
+      isPaid: false,
+      userId: userId,
+      month: formData.month,
+      year: formData.year
+    });
+  },
+  billingEntry: async function(formData) {
+    return await billingEntries.add({
+      billingId: formData.billing,
+      date: formData.date,
+      hasAfternoonSnack: !!formData.hasAfternoonSnack,
+      hasBreakfast: !!formData.hasBreakfast,
+      hasLunch: !!formData.hasLunch
+    });
+  }
+};
+
+export const updater = {
+  setting: async function(settingId, formData) {
+    return await settings.doc(settingId).update({
+      breakfastPrize: parseFloat(formData.breakfastPrize),
+      lunchPrize: parseFloat(formData.lunchPrize),
+      afternoonSnackPrize: parseFloat(formData.afternoonSnackPrize),
+      expirationDate: formData.expirationDate
+    });
+  },
+  billing: async function(billingId, newBillingSaldo) {
+    return await billings.doc(billingId).update({
+      billingSaldo: newBillingSaldo,
+      isPaid: true
+    });
+  },
+  billingCurrentSaldo: async function(billingId, newCurrentSaldo) {
+    return await billings.doc(billingId).update({
+      currentSaldo: newCurrentSaldo
+    });
+  },
+  billingEntry: async function() {
+    throw new Error("updater - billingEntry not implemented");
+  }
+};
+
+export const deletter = {
+  setting: async function(settingId) {
+    return await settings.doc(settingId).delete();
+  },
+  billing: async function(billingId) {
+    return await billings.doc(billingId).delete();
+  },
+  billingEntry: async function(entryId) {
+    return await billingEntries.doc(entryId).delete();
+  }
+};

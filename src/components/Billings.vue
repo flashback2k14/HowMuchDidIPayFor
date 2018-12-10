@@ -177,8 +177,8 @@
 
 <script>
 import { mapState } from "vuex";
-import { fb } from "../config/firebaseConfig.js";
-import { ActionType, MutationType, StateProperty } from "../helper";
+import { ActionType, MutationType, StateProperty } from "@/helper";
+import { creator, deletter, getter } from "@/database";
 
 export default {
   name: "Billings",
@@ -221,50 +221,33 @@ export default {
       this.form.year = null;
       this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
     },
-    createBilling() {
-      fb.billings
-        .add({
-          billingSaldo: 0,
-          currentSaldo: 0,
-          isPaid: false,
-          userId: this.currentUser.uid,
-          month: parseInt(this.form.month),
-          year: parseInt(this.form.year)
-        })
-        .then(res => {
-          this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
-          this.$store.commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
-          this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
-          this.closeDialog();
-        })
-        .catch(error =>
-          this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
-        );
+    async createBilling() {
+      try {
+        await creator.billing(this.currentUser.uid, {
+          month: parseInt(this.form.month, 10),
+          year: parseInt(this.form.year, 10)
+        });
+        this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
+        this.$store.commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
+        this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
+        this.closeDialog();
+      } catch (error) {
+        this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
+      }
     },
     showDeleteDialog(item) {
       this.privates.deletedableBilling = item;
       this.dialogs.isDeleteVisible = !this.dialogs.isDeleteVisible;
     },
-    async _deleteEntry(doc) {
-      return await fb.billingEntries.doc(doc.id).delete();
-    },
-    async _getBillingEntries() {
-      return await fb.billingEntries
-        .where("billingId", "==", this.privates.deletedableBilling.id)
-        .get();
-    },
-    async _deleteBilling() {
-      return await fb.billings
-        .doc(this.privates.deletedableBilling.id)
-        .delete();
-    },
     async onDeleteConfirm() {
       try {
-        await this._deleteBilling();
-        const entries = await this._getBillingEntries();
+        await deletter.billing(this.privates.deletedableBilling.id);
+        const entries = await getter.billingEntries(
+          this.privates.deletedableBilling.id
+        );
 
         if (!entries.empty) {
-          const promHolder = entries.docs.map(this._deleteEntry);
+          const promHolder = entries.docs.map(deletter.billingEntry);
           await Promise.all(promHolder);
         }
 

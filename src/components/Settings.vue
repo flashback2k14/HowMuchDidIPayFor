@@ -186,8 +186,8 @@
 
 <script>
 import { mapState } from "vuex";
-import { fb } from "../config/firebaseConfig.js";
-import { ActionType, MutationType, StateProperty } from "../helper";
+import { ActionType, MutationType, StateProperty } from "@/helper";
+import { creator, updater, deletter } from "@/database";
 
 export default {
   name: "Settings",
@@ -228,40 +228,24 @@ export default {
       this.clearForm();
       this.dialogs.isEditVisible = !this.dialogs.isEditVisible;
     },
-    createSetting() {
-      fb.settings
-        .add({
-          breakfastPrize: parseFloat(this.form.breakfastPrize),
-          lunchPrize: parseFloat(this.form.lunchPrize),
-          afternoonSnackPrize: parseFloat(this.form.afternoonSnackPrize),
-          expirationDate: this.form.expirationDate,
-          userId: this.currentUser.uid
-        })
-        .then(res => {
-          this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
-          this.closeDialog();
-        })
-        .catch(error =>
-          this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
-        );
+    async createSetting() {
+      try {
+        await creator.setting(this.currentUser.uid, this.form);
+        this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
+        this.closeDialog();
+      } catch (error) {
+        this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
+      }
     },
-    editSetting() {
-      fb.settings
-        .doc(this.privates.editableSetting.id)
-        .update({
-          breakfastPrize: parseFloat(this.form.breakfastPrize),
-          lunchPrize: parseFloat(this.form.lunchPrize),
-          afternoonSnackPrize: parseFloat(this.form.afternoonSnackPrize),
-          expirationDate: this.form.expirationDate
-        })
-        .then(() => {
-          this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
-          this.privates.editableSetting = null;
-          this.closeDialogEdit();
-        })
-        .catch(error =>
-          this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
-        );
+    async editSetting() {
+      try {
+        await updater.setting(this.privates.editableSetting.id, this.form);
+        this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
+        this.privates.editableSetting = null;
+        this.closeDialogEdit();
+      } catch (error) {
+        this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
+      }
     },
     showEditDialog(item) {
       this.privates.editableSetting = item;
@@ -275,17 +259,14 @@ export default {
       this.privates.deletedableSetting = item;
       this.dialogs.isDeleteVisible = !this.dialogs.isDeleteVisible;
     },
-    onDeleteConfirm() {
-      fb.settings
-        .doc(this.privates.deletedableSetting.id)
-        .delete()
-        .then(() => {
-          this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
-          this.privates.deletedableSetting = null;
-        })
-        .catch(error =>
-          this.$store.commit(MutationType.SET_CURRENT_ERROR, error)
-        );
+    async onDeleteConfirm() {
+      try {
+        await deletter.setting(this.privates.deletedableSetting.id);
+        this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
+        this.privates.deletedableSetting = null;
+      } catch (error) {
+        this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
+      }
     },
     onDeleteCancel() {
       this.privates.deletedableSetting = null;
