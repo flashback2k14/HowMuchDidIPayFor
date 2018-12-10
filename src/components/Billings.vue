@@ -8,7 +8,7 @@
           <md-divider></md-divider>
         </md-card-header>
         <md-card-content>
-          <div v-if="userBillings === null || userBillings.length === 0">
+          <div v-if="showEmptyMessageBillings">
             <md-empty-state
               md-icon="block"
               md-label="Abrechnungen"
@@ -19,9 +19,9 @@
           <div v-else>
             <md-table
               class="billing-table_height"
-              :value="userBillings"
+              :value="billings"
               md-fixed-header
-              @md-selected="onBillingSelect"
+              @md-selected="handleBillingSelection"
             >
               <md-table-row
                 slot="md-table-row"
@@ -51,7 +51,7 @@
                 <md-table-cell md-label="Löschen">
                   <md-button
                     class="md-icon-button md-dense"
-                    @click="showDeleteDialog(item);"
+                    @click="handleDeleteBillingDialog(item);"
                   >
                     <md-icon>delete</md-icon>
                   </md-button>
@@ -77,12 +77,7 @@
         </md-card-header>
 
         <md-card-content>
-          <div
-            v-if="
-              currentBillingEntries === null ||
-                currentBillingEntries.length === 0
-            "
-          >
+          <div v-if="showEmptyMessageBillingEntries">
             <md-empty-state
               md-icon="block"
               md-label="Einträge"
@@ -93,7 +88,7 @@
           <div v-else>
             <md-table
               class="entries-table_height"
-              :value="currentBillingEntries"
+              :value="billingEntries"
               md-fixed-header
             >
               <md-table-row slot="md-table-row" slot-scope="{ item }">
@@ -155,7 +150,7 @@
           </md-field>
         </md-dialog-content>
         <md-dialog-actions>
-          <md-button class="md-primary" @click="closeDialog();"
+          <md-button class="md-primary" @click="handleCloseCreateDialog"
             >Abbrechen</md-button
           >
           <md-button class="md-primary" type="submit">Speichern</md-button>
@@ -169,8 +164,8 @@
       md-content="Hinweis: Diese Aktion löscht auch alle verbundenen Abrechnungseinträge."
       md-confirm-text="Ja"
       md-cancel-text="Nein"
-      @md-confirm="onDeleteConfirm"
-      @md-cancel="onDeleteCancel"
+      @md-confirm="handleConfirmDeleteBilling"
+      @md-cancel="handleCancelDeleteBilling"
     />
   </div>
 </template>
@@ -187,7 +182,25 @@ export default {
       StateProperty.CURRENT_USER,
       StateProperty.CURRENT_BILLING_ENTRIES,
       StateProperty.USER_BILLINGS
-    ])
+    ]),
+    showEmptyMessageBillings: function() {
+      return (
+        this[StateProperty.USER_BILLINGS] === null ||
+        this[StateProperty.USER_BILLINGS].length === 0
+      );
+    },
+    billings: function() {
+      return this[StateProperty.USER_BILLINGS];
+    },
+    showEmptyMessageBillingEntries: function() {
+      return (
+        this[StateProperty.CURRENT_BILLING_ENTRIES] === null ||
+        this[StateProperty.CURRENT_BILLING_ENTRIES].length === 0
+      );
+    },
+    billingEntries: function() {
+      return this[StateProperty.CURRENT_BILLING_ENTRIES];
+    }
   },
   data() {
     return {
@@ -205,7 +218,7 @@ export default {
     };
   },
   methods: {
-    onBillingSelect(item) {
+    handleBillingSelection(item) {
       if (item) {
         this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, item);
         this.$store.dispatch(
@@ -216,30 +229,30 @@ export default {
         this.$store.commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
       }
     },
-    closeDialog() {
+    handleCloseCreateDialog() {
       this.form.month = null;
       this.form.year = null;
       this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
     },
     async createBilling() {
       try {
-        await creator.billing(this.currentUser.uid, {
+        await creator.billing(this[StateProperty.CURRENT_USER].uid, {
           month: parseInt(this.form.month, 10),
           year: parseInt(this.form.year, 10)
         });
         this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
         this.$store.commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
         this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
-        this.closeDialog();
+        this.handleCloseCreateDialog();
       } catch (error) {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }
     },
-    showDeleteDialog(item) {
+    handleDeleteBillingDialog(item) {
       this.privates.deletedableBilling = item;
       this.dialogs.isDeleteVisible = !this.dialogs.isDeleteVisible;
     },
-    async onDeleteConfirm() {
+    async handleConfirmDeleteBilling() {
       try {
         await deletter.billing(this.privates.deletedableBilling.id);
         const entries = await getter.billingEntries(
@@ -260,7 +273,7 @@ export default {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }
     },
-    onDeleteCancel() {
+    handleCancelDeleteBilling() {
       this.privates.deletedableBilling = null;
     }
   }
