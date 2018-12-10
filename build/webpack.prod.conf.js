@@ -127,6 +127,7 @@ const webpackConfig = merge(baseWebpackConfig, {
       theme_color: "#212121",
       background_color: "#212121",
       crossorigin: "use-credentials", //can be null, use-credentials or anonymous
+      orientation: "any",
       icons: [
         {
           src:
