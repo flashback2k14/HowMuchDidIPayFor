@@ -11,7 +11,7 @@
           <span v-text="profileName"></span>
           <md-button
             class="md-icon-button"
-            @click="logoutUser"
+            @click="handleUserLogout"
             :disabled="shouldDisableUiControls"
           >
             <md-icon>perm_identity</md-icon>
@@ -61,7 +61,7 @@
         md-persistent
       >
         <span v-text="errorMessage"></span>
-        <md-button class="md-primary" @click="closeErrorSnackbar();"
+        <md-button class="md-primary" @click="handleErrorSnackbarClose"
           >Schließen</md-button
         >
       </md-snackbar>
@@ -105,7 +105,7 @@ export default {
     }
   },
   methods: {
-    async logoutUser() {
+    async handleUserLogout() {
       try {
         await auth.logout();
         this.$store.dispatch(ActionType.CLEAR_STATE);
@@ -114,11 +114,11 @@ export default {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }
     },
+    handleErrorSnackbarClose() {
+      this.$store.commit(MutationType.SET_CURRENT_ERROR, null);
+    },
     setActiveTab() {
       return this[StateProperty.CURRENT_USER] === null ? -1 : "tabDashboard";
-    },
-    closeErrorSnackbar() {
-      this.$store.commit(MutationType.SET_CURRENT_ERROR, null);
     }
   }
 };
