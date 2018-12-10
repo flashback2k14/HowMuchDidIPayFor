@@ -1,19 +1,19 @@
 <template>
   <div class="md-layout md-alignment-top-center dashboard-container_height">
     <div class="md-layout-item md-size-95">
-      <div v-if="currentBillings === null || currentBillings.length === 0">
+      <div v-if="showEmptyMessage">
         <md-empty-state
           md-icon="block"
-          md-label="Dashboard"
-          md-description="There is currently no data avialable."
+          md-label="Übersicht"
+          md-description="Keine Daten vorhanden."
         >
         </md-empty-state>
       </div>
-      <div v-else v-for="item in currentBillings" :key="item.id">
+      <div v-else v-for="billing in billings" :key="billing.id">
         <md-card class="card-margin_bottom">
           <md-card-header>
             <div class="md-title">
-              Abrechnung {{ item.month }}.{{ item.year }}
+              Abrechnung {{ billing.month }}.{{ billing.year }}
             </div>
             <md-divider></md-divider>
           </md-card-header>
@@ -21,13 +21,13 @@
           <md-card-content>
             <md-field>
               <label>Aktueller Betrag</label>
-              <md-input v-model="item.currentSaldo" disabled></md-input>
+              <md-input v-model="billing.currentSaldo" disabled></md-input>
               <span class="md-suffix">Euro</span>
             </md-field>
           </md-card-content>
 
           <md-card-actions>
-            <md-button @click="setBillingAsPaid(item);"
+            <md-button @click="handleSetBillingAsPaid(billing);"
               >Abrechnung abschließen</md-button
             >
           </md-card-actions>
@@ -43,8 +43,8 @@
       md-input-placeholder="Abrechnungssaldo"
       md-confirm-text="Abschließen"
       md-cancel-text="Abbrechen"
-      @md-confirm="onCloseBillingConfirm"
-      @md-cancel="onCloseBillingCancel"
+      @md-confirm="handleConfirmCloseBilling"
+      @md-cancel="handleCancelCloseBilling"
     />
     <!-- dialog:create -->
     <md-dialog :md-active.sync="dialogs.isCreateEntryVisible">
@@ -76,7 +76,7 @@
           <md-checkbox v-model="form.hasAfternoonSnack">Vespar</md-checkbox>
         </md-dialog-content>
         <md-dialog-actions>
-          <md-button class="md-primary" @click="closeDialog();"
+          <md-button class="md-primary" @click="handleCloseCreateEntryDialog"
             >Abbrechen</md-button
           >
           <md-button class="md-primary" type="submit">Speichern</md-button>
@@ -104,13 +104,21 @@ export default {
   name: "Dashboard",
   computed: {
     ...mapState([
-      StateProperty.CURRENT_USER,
       StateProperty.CURRENT_SETTING,
       StateProperty.CURRENT_BILLINGS
     ]),
+    showEmptyMessage: function() {
+      return (
+        this[StateProperty.CURRENT_BILLINGS] === null ||
+        this[StateProperty.CURRENT_BILLINGS].length === 0
+      );
+    },
+    billings: function() {
+      return this[StateProperty.CURRENT_BILLINGS];
+    },
     currentBillingIntervals: function() {
-      if (this.currentBillings) {
-        return this.currentBillings.map(billing => {
+      if (this[StateProperty.CURRENT_BILLINGS]) {
+        return this[StateProperty.CURRENT_BILLINGS].map(billing => {
           return {
             text: `${billing.month}.${billing.year}`,
             value: billing.id
@@ -139,11 +147,11 @@ export default {
     };
   },
   methods: {
-    setBillingAsPaid(item) {
+    handleSetBillingAsPaid(item) {
       this.privates.closableBilling = item;
       this.dialogs.isCloseBillingVisible = !this.dialogs.isCloseBillingVisible;
     },
-    async onCloseBillingConfirm() {
+    async handleConfirmCloseBilling() {
       try {
         await updater.billing.billingSaldo(
           this.privates.closableBilling.id,
@@ -155,10 +163,10 @@ export default {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }
     },
-    onCloseBillingCancel() {
+    handleCancelCloseBilling() {
       this.privates.closableBilling = {};
     },
-    closeDialog() {
+    handleCloseCreateEntryDialog() {
       this.form.billing = null;
       this.form.hasBreakfast = null;
       this.form.hasLunch = null;
@@ -167,20 +175,20 @@ export default {
       this.dialogs.isCreateEntryVisible = !this.dialogs.isCreateEntryVisible;
     },
     _calcNewCurrentSaldo() {
-      const billing = this.currentBillings.filter(
+      const billing = this[StateProperty.CURRENT_BILLINGS].filter(
         billing => billing.id === this.form.billing
       );
 
       let saldo = billing[0].currentSaldo;
 
       if (this.form.hasBreakfast) {
-        saldo += this.currentSetting.breakfastPrize;
+        saldo += this[StateProperty.CURRENT_SETTING].breakfastPrize;
       }
       if (this.form.hasLunch) {
-        saldo += this.currentSetting.lunchPrize;
+        saldo += this[StateProperty.CURRENT_SETTING].lunchPrize;
       }
       if (this.form.hasAfternoonSnack) {
-        saldo += this.currentSetting.afternoonSnackPrize;
+        saldo += this[StateProperty.CURRENT_SETTING].afternoonSnackPrize;
       }
       return saldo;
     },
@@ -190,7 +198,7 @@ export default {
         const newCurrentSaldo = this._calcNewCurrentSaldo();
         await updater.billing.currentSaldo(this.form.billing, newCurrentSaldo);
         this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
-        this.closeDialog();
+        this.handleCloseCreateEntryDialog();
       } catch (error) {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }
