@@ -1,8 +1,8 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import { extendDocuments, ActionType, MutationType } from "@/helper";
-import { getter } from "@/database";
 import { auth } from "@/config/firebaseConfig";
+import { reader } from "@/database";
 
 Vue.use(Vuex);
 
@@ -46,7 +46,7 @@ export const store = new Vuex.Store({
     },
     async fetchUserProfile({ commit, state }) {
       try {
-        const result = await getter.profile(state.currentUser.uid);
+        const result = await reader.profile(state.currentUser.uid);
         if (!result.exists) {
           commit(MutationType.SET_CURRENT_ERROR, {
             message: "Es wurde kein Benutzerprofil gefunden."
@@ -60,7 +60,7 @@ export const store = new Vuex.Store({
     },
     async fetchUserSettings({ commit, state }) {
       try {
-        const result = await getter.settings(state.currentUser.uid);
+        const result = await reader.settings(state.currentUser.uid);
         if (result.empty) {
           return;
         }
@@ -73,7 +73,7 @@ export const store = new Vuex.Store({
     },
     async fetchUserBillings({ commit, state }) {
       try {
-        const result = await getter.billings(state.currentUser.uid);
+        const result = await reader.billings(state.currentUser.uid);
         if (result.empty) {
           return;
         }
@@ -86,7 +86,7 @@ export const store = new Vuex.Store({
     },
     async fetchUserBillingEntriesForSelection({ commit, state }) {
       try {
-        const result = await getter.billingEntries(
+        const result = await reader.billingEntries(
           state.currentSelectedBilling.id
         );
         if (result.empty) {

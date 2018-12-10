@@ -18,31 +18,7 @@ export const auth = {
   }
 };
 
-export const getter = {
-  profile: async function(userId) {
-    return await users.doc(userId).get();
-  },
-  settings: async function(userId) {
-    return await settings.where("userId", "==", userId).get();
-  },
-  billings: async function(userId) {
-    return await billings.where("userId", "==", userId).get();
-  },
-  billingEntries: async function(billingId) {
-    return await billingEntries.where("billingId", "==", billingId).get();
-  }
-};
-
 export const creator = {
-  setting: async function(userId, formData) {
-    return await settings.add({
-      breakfastPrize: parseFloat(formData.breakfastPrize),
-      lunchPrize: parseFloat(formData.lunchPrize),
-      afternoonSnackPrize: parseFloat(formData.afternoonSnackPrize),
-      expirationDate: formData.expirationDate,
-      userId: userId
-    });
-  },
   billing: async function(userId, formData) {
     return await billings.add({
       billingSaldo: 0,
@@ -61,10 +37,50 @@ export const creator = {
       hasBreakfast: !!formData.hasBreakfast,
       hasLunch: !!formData.hasLunch
     });
+  },
+  setting: async function(userId, formData) {
+    return await settings.add({
+      breakfastPrize: parseFloat(formData.breakfastPrize),
+      lunchPrize: parseFloat(formData.lunchPrize),
+      afternoonSnackPrize: parseFloat(formData.afternoonSnackPrize),
+      expirationDate: formData.expirationDate,
+      userId: userId
+    });
+  }
+};
+
+export const reader = {
+  billings: async function(userId) {
+    return await billings.where("userId", "==", userId).get();
+  },
+  billingEntries: async function(billingId) {
+    return await billingEntries.where("billingId", "==", billingId).get();
+  },
+  profile: async function(userId) {
+    return await users.doc(userId).get();
+  },
+  settings: async function(userId) {
+    return await settings.where("userId", "==", userId).get();
   }
 };
 
 export const updater = {
+  billing: {
+    billingSaldo: async function(billingId, newBillingSaldo) {
+      return await billings.doc(billingId).update({
+        billingSaldo: newBillingSaldo,
+        isPaid: true
+      });
+    },
+    currentSaldo: async function(billingId, newCurrentSaldo) {
+      return await billings.doc(billingId).update({
+        currentSaldo: newCurrentSaldo
+      });
+    }
+  },
+  billingEntry: async function() {
+    throw new Error("updater - billingEntry not implemented");
+  },
   setting: async function(settingId, formData) {
     return await settings.doc(settingId).update({
       breakfastPrize: parseFloat(formData.breakfastPrize),
@@ -72,31 +88,17 @@ export const updater = {
       afternoonSnackPrize: parseFloat(formData.afternoonSnackPrize),
       expirationDate: formData.expirationDate
     });
-  },
-  billing: async function(billingId, newBillingSaldo) {
-    return await billings.doc(billingId).update({
-      billingSaldo: newBillingSaldo,
-      isPaid: true
-    });
-  },
-  billingCurrentSaldo: async function(billingId, newCurrentSaldo) {
-    return await billings.doc(billingId).update({
-      currentSaldo: newCurrentSaldo
-    });
-  },
-  billingEntry: async function() {
-    throw new Error("updater - billingEntry not implemented");
   }
 };
 
 export const deletter = {
-  setting: async function(settingId) {
-    return await settings.doc(settingId).delete();
-  },
   billing: async function(billingId) {
     return await billings.doc(billingId).delete();
   },
   billingEntry: async function(entryId) {
     return await billingEntries.doc(entryId).delete();
+  },
+  setting: async function(settingId) {
+    return await settings.doc(settingId).delete();
   }
 };

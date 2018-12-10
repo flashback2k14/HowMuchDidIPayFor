@@ -71,8 +71,8 @@
 
 <script>
 import { mapState } from "vuex";
-import { auth } from "./database";
-import { ActionType, MutationType, StateProperty } from "./helper";
+import { ActionType, MutationType, StateProperty } from "@/helper";
+import { auth } from "@/database";
 
 export default {
   name: "App",

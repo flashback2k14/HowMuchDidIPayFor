@@ -145,7 +145,7 @@ export default {
     },
     async onCloseBillingConfirm() {
       try {
-        await updater.billing(
+        await updater.billing.billingSaldo(
           this.privates.closableBilling.id,
           parseFloat(this.privates.closableBilling.billingSaldo)
         );
@@ -188,7 +188,7 @@ export default {
       try {
         await creator.billingEntry(this.form);
         const newCurrentSaldo = this._calcNewCurrentSaldo();
-        await updater.billingCurrentSaldo(this.form.billing, newCurrentSaldo);
+        await updater.billing.currentSaldo(this.form.billing, newCurrentSaldo);
         this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
         this.closeDialog();
       } catch (error) {
