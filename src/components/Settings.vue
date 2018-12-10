@@ -9,7 +9,7 @@
         </md-card-header>
 
         <md-card-content>
-          <div v-if="userSettings === null || userSettings.length === 0">
+          <div v-if="showErrorMessage">
             <md-empty-state
               md-icon="block"
               md-label="Einstellungen"
@@ -18,7 +18,7 @@
             </md-empty-state>
           </div>
           <div v-else>
-            <md-table :value="userSettings">
+            <md-table :value="settings">
               <md-table-row slot="md-table-row" slot-scope="{ item }">
                 <md-table-cell md-label="Position" md-numeric>{{
                   item.pos
@@ -40,7 +40,7 @@
                 <md-table-cell md-label="Bearbeiten">
                   <md-button
                     class="md-icon-button md-dense"
-                    @click="showEditDialog(item);"
+                    @click="handleShowEditDialog(item);"
                   >
                     <md-icon>edit</md-icon>
                   </md-button>
@@ -48,7 +48,7 @@
                 <md-table-cell md-label="Löschen">
                   <md-button
                     class="md-icon-button md-dense"
-                    @click="showDeleteDialog(item);"
+                    @click="handleShowDeleteDialog(item);"
                   >
                     <md-icon>delete</md-icon>
                   </md-button>
@@ -112,7 +112,7 @@
           </md-datepicker>
         </md-dialog-content>
         <md-dialog-actions>
-          <md-button class="md-primary" @click="closeDialog();"
+          <md-button class="md-primary" @click="handleCloseCreateDialog"
             >Abbrechen</md-button
           >
           <md-button class="md-primary" type="submit">Speichern</md-button>
@@ -165,7 +165,7 @@
           </md-datepicker>
         </md-dialog-content>
         <md-dialog-actions>
-          <md-button class="md-primary" @click="closeDialogEdit();"
+          <md-button class="md-primary" @click="handleCloseEditDialog"
             >Abbrechen</md-button
           >
           <md-button class="md-primary" type="submit">Aktualisieren</md-button>
@@ -178,8 +178,8 @@
       md-title="Wollen Sie wirklich diesen Eintrag löschen?"
       md-confirm-text="Ja"
       md-cancel-text="Nein"
-      @md-confirm="onDeleteConfirm"
-      @md-cancel="onDeleteCancel"
+      @md-confirm="handleConfirmDeleteSetting"
+      @md-cancel="handleCancelDeleteSetting"
     />
   </div>
 </template>
@@ -192,7 +192,16 @@ import { creator, updater, deletter } from "@/database";
 export default {
   name: "Settings",
   computed: {
-    ...mapState([StateProperty.CURRENT_USER, StateProperty.USER_SETTINGS])
+    ...mapState([StateProperty.CURRENT_USER, StateProperty.USER_SETTINGS]),
+    showErrorMessage: function() {
+      return (
+        this[StateProperty.USER_SETTINGS] === null ||
+        this[StateProperty.USER_SETTINGS].length === 0
+      );
+    },
+    settings: function() {
+      return this[StateProperty.USER_SETTINGS];
+    }
   },
   data() {
     return {
@@ -220,34 +229,20 @@ export default {
       this.form.afternoonSnackPrize = null;
       this.form.expirationDate = null;
     },
-    closeDialog() {
+    handleCloseCreateDialog() {
       this.clearForm();
       this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
     },
-    closeDialogEdit() {
-      this.clearForm();
-      this.dialogs.isEditVisible = !this.dialogs.isEditVisible;
-    },
     async createSetting() {
       try {
-        await creator.setting(this.currentUser.uid, this.form);
+        await creator.setting(this[StateProperty.CURRENT_USER].uid, this.form);
         this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
-        this.closeDialog();
+        this.handleCloseCreateDialog();
       } catch (error) {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }
     },
-    async editSetting() {
-      try {
-        await updater.setting(this.privates.editableSetting.id, this.form);
-        this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
-        this.privates.editableSetting = null;
-        this.closeDialogEdit();
-      } catch (error) {
-        this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
-      }
-    },
-    showEditDialog(item) {
+    handleShowEditDialog(item) {
       this.privates.editableSetting = item;
       this.form.breakfastPrize = item.breakfastPrize;
       this.form.lunchPrize = item.lunchPrize;
@@ -255,11 +250,25 @@ export default {
       this.form.expirationDate = new Date(item.expirationDate.seconds * 1000);
       this.dialogs.isEditVisible = !this.dialogs.isEditVisible;
     },
-    showDeleteDialog(item) {
+    handleCloseEditDialog() {
+      this.clearForm();
+      this.dialogs.isEditVisible = !this.dialogs.isEditVisible;
+    },
+    async editSetting() {
+      try {
+        await updater.setting(this.privates.editableSetting.id, this.form);
+        this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
+        this.privates.editableSetting = null;
+        this.handleCloseEditDialog();
+      } catch (error) {
+        this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
+      }
+    },
+    handleShowDeleteDialog(item) {
       this.privates.deletedableSetting = item;
       this.dialogs.isDeleteVisible = !this.dialogs.isDeleteVisible;
     },
-    async onDeleteConfirm() {
+    async handleConfirmDeleteSetting() {
       try {
         await deletter.setting(this.privates.deletedableSetting.id);
         this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
@@ -268,7 +277,7 @@ export default {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }
     },
-    onDeleteCancel() {
+    handleCancelDeleteSetting() {
       this.privates.deletedableSetting = null;
     }
   }
