@@ -35,7 +35,8 @@ export const creator = {
       date: formData.date,
       hasAfternoonSnack: !!formData.hasAfternoonSnack,
       hasBreakfast: !!formData.hasBreakfast,
-      hasLunch: !!formData.hasLunch
+      hasLunch: !!formData.hasLunch,
+      comment: formData.comment
     });
   },
   setting: async function(userId, formData) {

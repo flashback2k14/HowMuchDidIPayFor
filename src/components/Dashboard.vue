@@ -74,6 +74,10 @@
           <md-checkbox v-model="form.hasBreakfast">Frühstück</md-checkbox>
           <md-checkbox v-model="form.hasLunch">Mittagessen</md-checkbox>
           <md-checkbox v-model="form.hasAfternoonSnack">Vespar</md-checkbox>
+          <md-field>
+            <label>Anmerkung</label>
+            <md-textarea v-model="form.comment"></md-textarea>
+          </md-field>
         </md-dialog-content>
         <md-dialog-actions>
           <md-button class="md-primary" @click="handleCloseCreateEntryDialog"
@@ -139,7 +143,8 @@ export default {
         hasBreakfast: null,
         hasLunch: null,
         hasAfternoonSnack: null,
-        date: null
+        date: null,
+        comment: null
       },
       privates: {
         closableBilling: {}
@@ -172,6 +177,7 @@ export default {
       this.form.hasLunch = null;
       this.form.hasAfternoonSnack = null;
       this.form.date = null;
+      this.form.comment = null;
       this.dialogs.isCreateEntryVisible = !this.dialogs.isCreateEntryVisible;
     },
     _calcNewCurrentSaldo() {
