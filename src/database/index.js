@@ -67,9 +67,10 @@ export const reader = {
 
 export const updater = {
   billing: {
-    billingSaldo: async function(billingId, newBillingSaldo) {
+    billingSaldo: async function(billingId, formData) {
       return await billings.doc(billingId).update({
-        billingSaldo: newBillingSaldo,
+        billingSaldo: formData.billingSaldo,
+        comment: formData.comment,
         isPaid: true
       });
     },

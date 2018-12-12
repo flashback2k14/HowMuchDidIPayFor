@@ -34,17 +34,10 @@
         </md-card>
       </div>
     </div>
-    <!-- dialog:close-billing -->
-    <md-dialog-prompt
-      :md-active.sync="dialogs.isCloseBillingVisible"
-      v-model="privates.closableBilling.billingSaldo"
-      md-title="Wollen Sie die aktuelle Abrechnung abschließen?"
-      md-content="Bitte geben Sie den Abrechnungssaldo in Euro ein."
-      md-input-placeholder="Abrechnungssaldo"
-      md-confirm-text="Abschließen"
-      md-cancel-text="Abbrechen"
-      @md-confirm="handleConfirmCloseBilling"
-      @md-cancel="handleCancelCloseBilling"
+    <close-billing-dialog
+      :isVisible.sync="dialogs.isCloseBillingVisible"
+      :onCancel="handleCancelCloseBilling"
+      :onConfirm="handleConfirmCloseBilling"
     />
     <!-- dialog:create -->
     <md-dialog :md-active.sync="dialogs.isCreateEntryVisible">
@@ -103,9 +96,13 @@
 import { mapState } from "vuex";
 import { ActionType, MutationType, StateProperty } from "@/helper";
 import { creator, updater } from "@/database";
+import CloseBillingDialog from "./dialogs/CloseBillingDialog.vue";
 
 export default {
   name: "Dashboard",
+  components: {
+    "close-billing-dialog": CloseBillingDialog
+  },
   computed: {
     ...mapState([
       StateProperty.CURRENT_SETTING,
@@ -156,20 +153,23 @@ export default {
       this.privates.closableBilling = item;
       this.dialogs.isCloseBillingVisible = !this.dialogs.isCloseBillingVisible;
     },
-    async handleConfirmCloseBilling() {
+    async handleConfirmCloseBilling(e) {
       try {
-        await updater.billing.billingSaldo(
-          this.privates.closableBilling.id,
-          parseFloat(this.privates.closableBilling.billingSaldo)
-        );
+        await updater.billing.billingSaldo(this.privates.closableBilling.id, {
+          billingSaldo: parseFloat(e.billingSaldo),
+          comment: e.comment
+        });
         this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
         this.privates.closableBilling = {};
+        this.dialogs.isCloseBillingVisible = !this.dialogs
+          .isCloseBillingVisible;
       } catch (error) {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }
     },
     handleCancelCloseBilling() {
       this.privates.closableBilling = {};
+      this.dialogs.isCloseBillingVisible = !this.dialogs.isCloseBillingVisible;
     },
     handleCloseCreateEntryDialog() {
       this.form.billing = null;
