@@ -20,6 +20,7 @@
             <billings-table
               :billings="billings"
               @on-billing-selection="handleBillingSelection"
+              @on-show-comment="handleShowComment"
               @on-delete="handleDeleteBillingDialog"
             />
           </div>
@@ -50,7 +51,10 @@
             </md-empty-state>
           </div>
           <div v-else>
-            <billing-entries-table :billingEntries="billingEntries" />
+            <billing-entries-table
+              :billingEntries="billingEntries"
+              @on-show-comment="handleShowComment"
+            />
           </div>
         </md-card-content>
       </md-card>
@@ -69,6 +73,12 @@
       md-cancel-text="Nein"
       @md-confirm="handleConfirmDeleteBilling"
       @md-cancel="handleCancelDeleteBilling"
+    />
+    <!-- dialog:show comment -->
+    <md-dialog-alert
+      :md-active.sync="dialogs.isShowCommentVisible"
+      :md-content="privates.showableComment"
+      md-confirm-text="OK"
     />
   </div>
 </template>
@@ -119,14 +129,16 @@ export default {
     return {
       dialogs: {
         isCreateVisible: false,
-        isDeleteVisible: false
+        isDeleteVisible: false,
+        isShowCommentVisible: false
       },
       form: {
         month: null,
         year: null
       },
       privates: {
-        deletedableBilling: null
+        deletedableBilling: null,
+        showableComment: ""
       }
     };
   },
@@ -161,6 +173,10 @@ export default {
       } catch (error) {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }
+    },
+    handleShowComment(e) {
+      this.privates.showableComment = e.data.comment;
+      this.dialogs.isShowCommentVisible = !this.dialogs.isShowCommentVisible;
     },
     handleDeleteBillingDialog(e) {
       this.privates.deletedableBilling = e.data;

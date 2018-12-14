@@ -2,7 +2,6 @@
   <md-table
     class="billing-table_height"
     :value="billings"
-    md-fixed-header
     @md-selected="handleSelection"
   >
     <md-table-row
@@ -30,6 +29,15 @@
       <md-table-cell md-label="Bezahlt">
         <md-checkbox v-model="item.isPaid" disabled></md-checkbox>
       </md-table-cell>
+      <md-table-cell md-label="Anmerkung">
+        <md-button
+          class="md-icon-button md-dense"
+          :disabled="!item.comment"
+          @click="handleShowComment(item);"
+        >
+          <md-icon>mode_comment</md-icon>
+        </md-button>
+      </md-table-cell>
       <md-table-cell md-label="Löschen">
         <md-button class="md-icon-button md-dense" @click="handleDelete(item);">
           <md-icon>delete</md-icon>
@@ -50,6 +58,9 @@ export default {
   methods: {
     handleSelection(billing) {
       this.$emit("on-billing-selection", { data: billing });
+    },
+    handleShowComment(billing) {
+      this.$emit("on-show-comment", { data: billing });
     },
     handleDelete(billing) {
       this.$emit("on-delete", { data: billing });

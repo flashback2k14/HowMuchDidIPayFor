@@ -20,6 +20,15 @@
       <md-table-cell md-label="Vespar">
         <md-checkbox v-model="item.hasAfternoonSnack" disabled></md-checkbox>
       </md-table-cell>
+      <md-table-cell md-label="Anmerkung">
+        <md-button
+          class="md-icon-button md-dense"
+          :disabled="!item.comment"
+          @click="handleShowComment(item);"
+        >
+          <md-icon>mode_comment</md-icon>
+        </md-button>
+      </md-table-cell>
     </md-table-row>
   </md-table>
 </template>
@@ -30,6 +39,11 @@ export default {
   props: {
     billingEntries: {
       type: Array
+    }
+  },
+  methods: {
+    handleShowComment(billing) {
+      this.$emit("on-show-comment", { data: billing });
     }
   }
 };
