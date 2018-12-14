@@ -1,6 +1,6 @@
 <template>
   <div class="md-layout md-alignment-top-center billing-container_height">
-    <!-- billings data table -->
+    <!-- card:billings -->
     <div class="md-layout-item md-size-95">
       <md-card>
         <md-card-header>
@@ -17,47 +17,11 @@
             </md-empty-state>
           </div>
           <div v-else>
-            <md-table
-              class="billing-table_height"
-              :value="billings"
-              md-fixed-header
-              @md-selected="handleBillingSelection"
-            >
-              <md-table-row
-                slot="md-table-row"
-                slot-scope="{
-                  item
-                }"
-                md-selectable="single"
-              >
-                <md-table-cell md-label="Position" md-numeric>{{
-                  item.pos
-                }}</md-table-cell>
-                <md-table-cell md-label="Aktueller Betrag (€)" md-numeric>{{
-                  item.currentSaldo
-                }}</md-table-cell>
-                <md-table-cell md-label="Rechnungsbetrag (€)" md-numeric>{{
-                  item.billingSaldo
-                }}</md-table-cell>
-                <md-table-cell md-label="Abrechnungsmonat" md-numeric>{{
-                  item.month
-                }}</md-table-cell>
-                <md-table-cell md-label="Abrechnungsjahr" md-numeric>{{
-                  item.year
-                }}</md-table-cell>
-                <md-table-cell md-label="Bezahlt">
-                  <md-checkbox v-model="item.isPaid" disabled></md-checkbox>
-                </md-table-cell>
-                <md-table-cell md-label="Löschen">
-                  <md-button
-                    class="md-icon-button md-dense"
-                    @click="handleDeleteBillingDialog(item);"
-                  >
-                    <md-icon>delete</md-icon>
-                  </md-button>
-                </md-table-cell>
-              </md-table-row>
-            </md-table>
+            <billings-table
+              :billings="billings"
+              @on-billing-selection="handleBillingSelection"
+              @on-delete="handleDeleteBillingDialog"
+            />
           </div>
         </md-card-content>
         <md-card-actions>
@@ -68,7 +32,7 @@
         </md-card-actions>
       </md-card>
     </div>
-    <!-- billing entries data table -->
+    <!-- card:billing entries -->
     <div class="md-layout-item md-size-95">
       <md-card>
         <md-card-header>
@@ -86,77 +50,16 @@
             </md-empty-state>
           </div>
           <div v-else>
-            <md-table
-              class="entries-table_height"
-              :value="billingEntries"
-              md-fixed-header
-            >
-              <md-table-row slot="md-table-row" slot-scope="{ item }">
-                <md-table-cell md-label="Position" md-numeric>{{
-                  item.pos
-                }}</md-table-cell>
-                <md-table-cell md-label="Tag">{{
-                  item.date | formattedDate
-                }}</md-table-cell>
-                <md-table-cell md-label="Frühstück">
-                  <md-checkbox
-                    v-model="item.hasBreakfast"
-                    disabled
-                  ></md-checkbox>
-                </md-table-cell>
-                <md-table-cell md-label="Mittagessen">
-                  <md-checkbox v-model="item.hasLunch" disabled></md-checkbox>
-                </md-table-cell>
-                <md-table-cell md-label="Vespar">
-                  <md-checkbox
-                    v-model="item.hasAfternoonSnack"
-                    disabled
-                  ></md-checkbox>
-                </md-table-cell>
-              </md-table-row>
-            </md-table>
+            <billing-entries-table :billingEntries="billingEntries" />
           </div>
         </md-card-content>
       </md-card>
     </div>
-    <!-- dialog:create -->
-    <md-dialog :md-active.sync="dialogs.isCreateVisible">
-      <md-dialog-title>Erstellung einer neuen Monatsabrechnung</md-dialog-title>
-      <form novalidate @submit.prevent="createBilling">
-        <md-dialog-content>
-          <md-field>
-            <label>Abrechnungsmonat</label>
-            <md-input
-              type="number"
-              name="month"
-              id="month"
-              v-model.trim="form.month"
-              min="1"
-              max="12"
-              step="1"
-            ></md-input>
-          </md-field>
-          <md-field>
-            <label>Abrechnungsjahr</label>
-            <md-input
-              type="number"
-              name="year"
-              id="year"
-              v-model.trim="form.year"
-              min="1"
-              max="12"
-              step="1"
-            ></md-input>
-          </md-field>
-        </md-dialog-content>
-        <md-dialog-actions>
-          <md-button class="md-primary" @click="handleCloseCreateDialog"
-            >Abbrechen</md-button
-          >
-          <md-button class="md-primary" type="submit">Speichern</md-button>
-        </md-dialog-actions>
-      </form>
-    </md-dialog>
+    <create-billing-dialog
+      :isVisible="dialogs.isCreateVisible"
+      @on-confirm="createBilling"
+      @on-cancel="handleCloseCreateDialog"
+    />
     <!-- dialog:delete -->
     <md-dialog-confirm
       :md-active.sync="dialogs.isDeleteVisible"
@@ -172,11 +75,21 @@
 
 <script>
 import { mapState } from "vuex";
+
 import { ActionType, MutationType, StateProperty } from "@/helper";
 import { creator, deletter, reader } from "@/database";
 
+import BillingsTable from "./datatables/BillingsTable.vue";
+import BillingEntriesTable from "./datatables/BillingEntriesTable.vue";
+import CreateBillingDialog from "./dialogs/CreateBillingDialog.vue";
+
 export default {
   name: "Billings",
+  components: {
+    "billings-table": BillingsTable,
+    "billing-entries-table": BillingEntriesTable,
+    "create-billing-dialog": CreateBillingDialog
+  },
   computed: {
     ...mapState([
       StateProperty.CURRENT_USER,
@@ -218,9 +131,10 @@ export default {
     };
   },
   methods: {
-    handleBillingSelection(item) {
-      if (item) {
-        this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, item);
+    handleBillingSelection(e) {
+      const billing = e.data;
+      if (billing) {
+        this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, billing);
         this.$store.dispatch(
           ActionType.FETCH_USER_BILLING_ENTRIES_FOR_SELECTION
         );
@@ -230,26 +144,26 @@ export default {
       }
     },
     handleCloseCreateDialog() {
-      this.form.month = null;
-      this.form.year = null;
       this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
     },
-    async createBilling() {
+    async createBilling(e) {
       try {
         await creator.billing(this[StateProperty.CURRENT_USER].uid, {
-          month: parseInt(this.form.month, 10),
-          year: parseInt(this.form.year, 10)
+          month: parseInt(e.data.month, 10),
+          year: parseInt(e.data.year, 10)
         });
+
         this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
         this.$store.commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
         this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
+
         this.handleCloseCreateDialog();
       } catch (error) {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }
     },
-    handleDeleteBillingDialog(item) {
-      this.privates.deletedableBilling = item;
+    handleDeleteBillingDialog(e) {
+      this.privates.deletedableBilling = e.data;
       this.dialogs.isDeleteVisible = !this.dialogs.isDeleteVisible;
     },
     async handleConfirmDeleteBilling() {
@@ -284,11 +198,5 @@ export default {
 .billing-container_height {
   height: inherit;
   margin-top: 12px;
-}
-.billing-table_height {
-  height: 40vh;
-}
-.entries-table_height {
-  height: 50vh;
 }
 </style>
