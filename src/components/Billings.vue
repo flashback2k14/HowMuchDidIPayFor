@@ -1,70 +1,48 @@
 <template>
   <div class="md-layout md-alignment-top-center billing-container_height">
-    <!-- card:billings -->
-    <div class="md-layout-item md-size-95">
-      <md-card>
-        <md-card-header>
-          <div class="md-title">Abrechnungen</div>
-          <md-divider></md-divider>
-        </md-card-header>
-        <md-card-content>
-          <div v-if="showEmptyMessageBillings">
-            <md-empty-state
-              md-icon="block"
-              md-label="Abrechnungen"
-              md-description="Keine Daten vorhanden."
-            >
-            </md-empty-state>
-          </div>
-          <div v-else>
-            <billings-table
-              :billings="billings"
-              @on-billing-selection="handleBillingSelection"
-              @on-show-comment="handleShowComment"
-              @on-delete="handleDeleteBillingDialog"
-            />
-          </div>
-        </md-card-content>
+    <layout-card
+      class="md-layout-item md-size-95"
+      :showErrorMessage="showEmptyMessageBillings"
+      title="Abrechnung"
+    >
+      <template slot="else-part">
+        <billings-table
+          :billings="billings"
+          @on-billing-selection="handleBillingSelection"
+          @on-show-comment="handleShowComment"
+          @on-delete="handleDeleteBillingDialog"
+        />
+      </template>
+      <template slot="action-part">
         <md-card-actions>
           <md-button
             @click="dialogs.isCreateVisible = !dialogs.isCreateVisible;"
             >Neuen Monat beginnen</md-button
           >
         </md-card-actions>
-      </md-card>
-    </div>
-    <!-- card:billing entries -->
-    <div class="md-layout-item md-size-95">
-      <md-card>
-        <md-card-header>
-          <div class="md-title">Abrechnungseinträge</div>
-          <md-divider></md-divider>
-        </md-card-header>
+      </template>
+    </layout-card>
 
-        <md-card-content>
-          <div v-if="showEmptyMessageBillingEntries">
-            <md-empty-state
-              md-icon="block"
-              md-label="Einträge"
-              md-description="Keine Daten vorhanden oder keine Abrechnung ausgewählt."
-            >
-            </md-empty-state>
-          </div>
-          <div v-else>
-            <billing-entries-table
-              :billingEntries="billingEntries"
-              @on-show-comment="handleShowComment"
-            />
-          </div>
-        </md-card-content>
-      </md-card>
-    </div>
+    <layout-card
+      class="md-layout-item md-size-95"
+      :showEmptyMessage="showEmptyMessageBillingEntries"
+      title="Abrechnungseinträge"
+      description="Keine Daten vorhanden oder keine Abrechnung ausgewählt."
+    >
+      <template slot="else-part">
+        <billing-entries-table
+          :billingEntries="billingEntries"
+          @on-show-comment="handleShowComment"
+        />
+      </template>
+    </layout-card>
+
     <create-billing-dialog
       :isVisible="dialogs.isCreateVisible"
       @on-confirm="createBilling"
       @on-cancel="handleCloseCreateDialog"
     />
-    <!-- dialog:delete -->
+
     <md-dialog-confirm
       :md-active.sync="dialogs.isDeleteVisible"
       md-title="Wollen Sie wirklich diesen Eintrag löschen?"
@@ -74,7 +52,7 @@
       @md-confirm="handleConfirmDeleteBilling"
       @md-cancel="handleCancelDeleteBilling"
     />
-    <!-- dialog:show comment -->
+
     <md-dialog-alert
       :md-active.sync="dialogs.isShowCommentVisible"
       :md-content="privates.showableComment"
@@ -89,6 +67,7 @@ import { mapState } from "vuex";
 import { ActionType, MutationType, StateProperty } from "@/helper";
 import { creator, deletter, reader } from "@/database";
 
+import LayoutCard from "./cards/LayoutCard.vue";
 import BillingsTable from "./datatables/BillingsTable.vue";
 import BillingEntriesTable from "./datatables/BillingEntriesTable.vue";
 import CreateBillingDialog from "./dialogs/CreateBillingDialog.vue";
@@ -96,6 +75,7 @@ import CreateBillingDialog from "./dialogs/CreateBillingDialog.vue";
 export default {
   name: "Billings",
   components: {
+    "layout-card": LayoutCard,
     "billings-table": BillingsTable,
     "billing-entries-table": BillingEntriesTable,
     "create-billing-dialog": CreateBillingDialog

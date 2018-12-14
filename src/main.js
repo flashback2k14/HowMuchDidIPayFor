@@ -26,3 +26,10 @@ auth.onAuthStateChanged(user => {
     registerServiceWorker();
   }
 });
+
+// TODO
+//  Edit Billing
+//  Edit Entry
+//    recalc current saldo
+//  Delete Entry
+//    recalc current saldo
