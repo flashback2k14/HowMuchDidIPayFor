@@ -97,8 +97,8 @@ export const deletter = {
   billing: async function(billingId) {
     return await billings.doc(billingId).delete();
   },
-  billingEntry: async function(entryId) {
-    return await billingEntries.doc(entryId).delete();
+  billingEntry: async function(entry) {
+    return await billingEntries.doc(entry.id).delete();
   },
   setting: async function(settingId) {
     return await settings.doc(settingId).delete();

@@ -3,7 +3,7 @@
     <md-dialog-title
       >Wollen Sie die aktuelle Abrechnung abschließen?</md-dialog-title
     >
-    <form novalidate @submit.prevent="createBillingEntry">
+    <form novalidate @submit.prevent="handleConfirm">
       <md-dialog-content>
         <md-field>
           <label>Abrechnungssaldo</label>
@@ -39,12 +39,6 @@ export default {
     isVisible: {
       type: Boolean,
       default: false
-    },
-    onCancel: {
-      type: Function
-    },
-    onConfirm: {
-      type: Function
     }
   },
   data() {
@@ -56,16 +50,14 @@ export default {
     };
   },
   methods: {
-    createBillingEntry() {
-      this.onConfirm(this.form);
+    handleConfirm() {
+      this.$emit("on-confirm", { data: this.form });
     },
     handleCancel() {
       this.form.billingSaldo = null;
       this.form.comment = null;
-      this.onCancel();
+      this.$emit("on-cancel");
     }
   }
 };
 </script>
-
-<style></style>
