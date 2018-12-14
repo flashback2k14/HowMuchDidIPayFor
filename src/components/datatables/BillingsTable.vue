@@ -15,10 +15,10 @@
         item.pos
       }}</md-table-cell>
       <md-table-cell md-label="Aktueller Betrag (€)" md-numeric>{{
-        item.currentSaldo
+        item.currentSaldo | formattedDecimal
       }}</md-table-cell>
       <md-table-cell md-label="Rechnungsbetrag (€)" md-numeric>{{
-        item.billingSaldo
+        item.billingSaldo | formattedDecimal
       }}</md-table-cell>
       <md-table-cell md-label="Abrechnungsmonat" md-numeric>{{
         item.month

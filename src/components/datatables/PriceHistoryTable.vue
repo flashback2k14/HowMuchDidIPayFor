@@ -5,13 +5,13 @@
         item.pos
       }}</md-table-cell>
       <md-table-cell md-label="Preis für Frückstück (€)" md-numeric>{{
-        item.breakfastPrize
+        item.breakfastPrize | formattedDecimal
       }}</md-table-cell>
       <md-table-cell md-label="Preis für Mittagessen (€)" md-numeric>{{
-        item.lunchPrize
+        item.lunchPrize | formattedDecimal
       }}</md-table-cell>
       <md-table-cell md-label="Preis für Vespar (€)" md-numeric>{{
-        item.afternoonSnackPrize
+        item.afternoonSnackPrize | formattedDecimal
       }}</md-table-cell>
       <md-table-cell md-label="Gültig Bis">{{
         item.expirationDate | formattedDate

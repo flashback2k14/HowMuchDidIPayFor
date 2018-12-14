@@ -10,7 +10,10 @@
     <md-card-content>
       <md-field>
         <label>Aktueller Betrag</label>
-        <md-input v-model="billingItem.currentSaldo" disabled></md-input>
+        <md-input
+          :value="billingItem.currentSaldo | formattedDecimal"
+          disabled
+        ></md-input>
         <span class="md-suffix">Euro</span>
       </md-field>
     </md-card-content>
