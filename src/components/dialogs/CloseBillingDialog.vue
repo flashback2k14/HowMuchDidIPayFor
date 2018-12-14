@@ -1,5 +1,9 @@
 <template>
-  <md-dialog :md-active.sync="isVisible">
+  <md-dialog
+    :md-active.sync="isVisible"
+    :md-close-on-esc="false"
+    :md-click-outside-to-close="false"
+  >
     <md-dialog-title
       >Wollen Sie die aktuelle Abrechnung abschließen?</md-dialog-title
     >

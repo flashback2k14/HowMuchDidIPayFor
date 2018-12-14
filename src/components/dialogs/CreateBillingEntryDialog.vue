@@ -1,8 +1,15 @@
 <template>
-  <md-dialog :md-active.sync="isVisible">
+  <md-dialog
+    :md-active.sync="isVisible"
+    :md-close-on-esc="false"
+    :md-click-outside-to-close="false"
+  >
     <md-dialog-title>Einen neuen Abrechnungseintrag anlegen</md-dialog-title>
     <form novalidate @submit.prevent="handleConfirm">
-      <md-dialog-content>
+      <md-dialog-content
+        md-close-on-esc="false"
+        md-click-outside-to-close="false"
+      >
         <md-field>
           <label for="billing">Abrechnung</label>
           <md-select

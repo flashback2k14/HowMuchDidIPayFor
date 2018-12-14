@@ -115,7 +115,7 @@ export default {
       }
     },
     handleErrorSnackbarClose() {
-      this.$store.commit(MutationType.SET_CURRENT_ERROR, null);
+      this.$store.dispatch(ActionType.CLEAR_ERROR);
     },
     setActiveTab() {
       return this[StateProperty.CURRENT_USER] === null ? -1 : "tabDashboard";

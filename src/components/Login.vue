@@ -1,6 +1,5 @@
 <template>
   <div class="md-layout md-alignment-center-center login-container_height">
-    <!-- login control -->
     <div class="md-layout-item md-size-50 md-small-size-100">
       <form novalidate @submit.prevent="handleUserLogin">
         <md-card md-with-hover>

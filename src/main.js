@@ -26,7 +26,10 @@ auth.onAuthStateChanged(user => {
       if (!value) {
         return "";
       }
-      return formatter.format(new Date(value.seconds * 1000));
+      if (value.seconds) {
+        return formatter.format(new Date(value.seconds * 1000));
+      }
+      return formatter.format(new Date(value));
     });
 
     app = new Vue({
