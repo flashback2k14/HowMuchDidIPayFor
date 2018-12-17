@@ -67,6 +67,12 @@ export const reader = {
 
 export const updater = {
   billing: {
+    period: async function(billingId, formData) {
+      return await billings.doc(billingId).update({
+        month: parseInt(formData.month, 10),
+        year: parseInt(formData.year, 10)
+      });
+    },
     billingSaldo: async function(billingId, formData) {
       return await billings.doc(billingId).update({
         billingSaldo: formData.billingSaldo,

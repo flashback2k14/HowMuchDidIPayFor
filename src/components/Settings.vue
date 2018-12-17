@@ -14,25 +14,18 @@
       </template>
       <template slot="action-part">
         <md-card-actions>
-          <md-button
-            @click="dialogs.isCreateVisible = !dialogs.isCreateVisible;"
+          <md-button @click="handleShowCreateDialog"
             >Neuen Eintrag anlegen</md-button
           >
         </md-card-actions>
       </template>
     </base-card>
 
-    <create-setting-dialog
-      :isVisible="dialogs.isCreateVisible"
-      @on-confirm="handleCreateSetting"
-      @on-cancel="handleCloseCreateDialog"
-    />
-
     <edit-setting-dialog
       :isVisible="dialogs.isEditVisible"
       :editableSetting="privates.editableSetting"
-      @on-confirm="handleEditSetting"
-      @on-cancel="handleCloseEditDialog"
+      @on-confirm="handleConfirmEditSetting"
+      @on-cancel="handleCancelEditSetting"
     />
 
     <md-dialog-confirm
@@ -42,6 +35,12 @@
       md-cancel-text="Nein"
       @md-confirm="handleConfirmDeleteSetting"
       @md-cancel="handleCancelDeleteSetting"
+    />
+
+    <create-setting-dialog
+      :isVisible="dialogs.isCreateVisible"
+      @on-confirm="handleConfirmCreateSetting"
+      @on-cancel="handleCancelCreateSetting"
     />
   </div>
 </template>
@@ -80,48 +79,38 @@ export default {
   data() {
     return {
       dialogs: {
-        isCreateVisible: false,
         isEditVisible: false,
-        isDeleteVisible: false
+        isDeleteVisible: false,
+        isCreateVisible: false
       },
       privates: {
-        deletedableSetting: null,
-        editableSetting: {}
+        editableSetting: {},
+        deletedableSetting: null
       }
     };
   },
   methods: {
-    handleCloseCreateDialog() {
-      this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
-    },
-    async handleCreateSetting(e) {
-      try {
-        await creator.setting(this[StateProperty.CURRENT_USER].uid, e.data);
-        this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
-        this.handleCloseCreateDialog();
-      } catch (error) {
-        this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
-      }
-    },
-    handleCloseEditDialog() {
-      this.dialogs.isEditVisible = !this.dialogs.isEditVisible;
-    },
+    // editing
     handleShowEditDialog(e) {
       let setting = e.data;
       setting.expirationDate = new Date(setting.expirationDate.seconds * 1000);
       this.privates.editableSetting = setting;
-      this.handleCloseEditDialog();
+      this.handleCancelEditSetting();
     },
-    async handleEditSetting(e) {
+    async handleConfirmEditSetting(e) {
       try {
         await updater.setting(this.privates.editableSetting.id, e.data);
         this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
         this.privates.editableSetting = {};
-        this.handleCloseEditDialog();
+        this.handleCancelEditSetting();
       } catch (error) {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }
     },
+    handleCancelEditSetting() {
+      this.dialogs.isEditVisible = !this.dialogs.isEditVisible;
+    },
+    // deleting
     handleShowDeleteDialog(e) {
       this.privates.deletedableSetting = e.data;
       this.dialogs.isDeleteVisible = !this.dialogs.isDeleteVisible;
@@ -137,6 +126,22 @@ export default {
     },
     handleCancelDeleteSetting() {
       this.privates.deletedableSetting = null;
+    },
+    // creation
+    handleShowCreateDialog() {
+      this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
+    },
+    async handleConfirmCreateSetting(e) {
+      try {
+        await creator.setting(this[StateProperty.CURRENT_USER].uid, e.data);
+        this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
+        this.handleCancelCreateSetting();
+      } catch (error) {
+        this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
+      }
+    },
+    handleCancelCreateSetting() {
+      this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
     }
   }
 };

@@ -1,4 +1,10 @@
 {
+  "version": 2,
   "name": "kep",
-  "alias": "kep"
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@now/static-build"
+    }
+  ]
 }

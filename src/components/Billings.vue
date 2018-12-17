@@ -9,14 +9,14 @@
         <billings-table
           :billings="billings"
           @on-billing-selection="handleBillingSelection"
-          @on-show-comment="handleShowComment"
-          @on-delete="handleDeleteBillingDialog"
+          @on-show-comment="handleShowCommentDialog"
+          @on-edit="handleShowEditDialog"
+          @on-delete="handleShowDeleteDialog"
         />
       </template>
       <template slot="action-part">
         <md-card-actions>
-          <md-button
-            @click="dialogs.isCreateVisible = !dialogs.isCreateVisible;"
+          <md-button @click="handleShowCreateDialog"
             >Neuen Monat beginnen</md-button
           >
         </md-card-actions>
@@ -32,15 +32,22 @@
       <template slot="else-part">
         <billing-entries-table
           :billingEntries="billingEntries"
-          @on-show-comment="handleShowComment"
+          @on-show-comment="handleShowCommentDialog"
         />
       </template>
     </base-card>
 
-    <create-billing-dialog
-      :isVisible="dialogs.isCreateVisible"
-      @on-confirm="handleCreateBilling"
-      @on-cancel="handleCloseCreateDialog"
+    <md-dialog-alert
+      :md-active.sync="dialogs.isShowCommentVisible"
+      :md-content="privates.showableComment"
+      md-confirm-text="Schließen"
+    />
+
+    <edit-billing-dialog
+      :isVisible="dialogs.isEditVisible"
+      :editableItem="privates.editableBilling"
+      @on-confirm="handleConfirmEditBilling"
+      @on-cancel="handleCancelEditBilling"
     />
 
     <md-dialog-confirm
@@ -53,10 +60,10 @@
       @md-cancel="handleCancelDeleteBilling"
     />
 
-    <md-dialog-alert
-      :md-active.sync="dialogs.isShowCommentVisible"
-      :md-content="privates.showableComment"
-      md-confirm-text="OK"
+    <create-billing-dialog
+      :isVisible="dialogs.isCreateVisible"
+      @on-confirm="handleConfirmCreateBilling"
+      @on-cancel="handleCancelCreateBilling"
     />
   </div>
 </template>
@@ -65,12 +72,13 @@
 import { mapState } from "vuex";
 
 import { ActionType, MutationType, StateProperty } from "@/helper";
-import { creator, deletter, reader } from "@/database";
+import { creator, reader, updater, deletter } from "@/database";
 
 import BaseCard from "./cards/BaseCard.vue";
 import BillingsTable from "./datatables/BillingsTable.vue";
 import BillingEntriesTable from "./datatables/BillingEntriesTable.vue";
 import CreateBillingDialog from "./dialogs/CreateBillingDialog.vue";
+import EditBillingDialog from "./dialogs/EditBillingDialog.vue";
 
 export default {
   name: "Billings",
@@ -78,7 +86,8 @@ export default {
     "base-card": BaseCard,
     "billings-table": BillingsTable,
     "billing-entries-table": BillingEntriesTable,
-    "create-billing-dialog": CreateBillingDialog
+    "create-billing-dialog": CreateBillingDialog,
+    "edit-billing-dialog": EditBillingDialog
   },
   computed: {
     ...mapState([
@@ -108,17 +117,20 @@ export default {
   data() {
     return {
       dialogs: {
-        isCreateVisible: false,
+        isShowCommentVisible: false,
+        isEditVisible: false,
         isDeleteVisible: false,
-        isShowCommentVisible: false
+        isCreateVisible: false
       },
       privates: {
-        deletedableBilling: null,
-        showableComment: ""
+        showableComment: "",
+        editableBilling: {},
+        deletedableBilling: null
       }
     };
   },
   methods: {
+    // table events
     handleBillingSelection(e) {
       const billing = e.data;
       if (billing) {
@@ -131,30 +143,32 @@ export default {
         this.$store.commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
       }
     },
-    handleCloseCreateDialog() {
-      this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
+    // showing
+    handleShowCommentDialog(e) {
+      this.privates.showableComment = e.data.comment;
+      this.dialogs.isShowCommentVisible = !this.dialogs.isShowCommentVisible;
     },
-    async handleCreateBilling(e) {
+    // editing
+    handleShowEditDialog(e) {
+      this.privates.editableBilling = e.data;
+      this.dialogs.isEditVisible = !this.dialogs.isEditVisible;
+    },
+    async handleConfirmEditBilling(e) {
       try {
-        await creator.billing(this[StateProperty.CURRENT_USER].uid, {
-          month: parseInt(e.data.month, 10),
-          year: parseInt(e.data.year, 10)
-        });
-
-        this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
-        this.$store.commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
+        await updater.billing.period(this.privates.editableBilling.id, e.data);
         this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
-
-        this.handleCloseCreateDialog();
+        this.privates.editableBilling = {};
+        this.handleCancelEditBilling();
       } catch (error) {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }
     },
-    handleShowComment(e) {
-      this.privates.showableComment = e.data.comment;
-      this.dialogs.isShowCommentVisible = !this.dialogs.isShowCommentVisible;
+    handleCancelEditBilling() {
+      this.privates.editableBilling = {};
+      this.dialogs.isEditVisible = !this.dialogs.isEditVisible;
     },
-    handleDeleteBillingDialog(e) {
+    // deleting
+    handleShowDeleteDialog(e) {
       this.privates.deletedableBilling = e.data;
       this.dialogs.isDeleteVisible = !this.dialogs.isDeleteVisible;
     },
@@ -181,6 +195,29 @@ export default {
     },
     handleCancelDeleteBilling() {
       this.privates.deletedableBilling = null;
+    },
+    // creation
+    handleShowCreateDialog() {
+      this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
+    },
+    async handleConfirmCreateBilling(e) {
+      try {
+        await creator.billing(this[StateProperty.CURRENT_USER].uid, {
+          month: parseInt(e.data.month, 10),
+          year: parseInt(e.data.year, 10)
+        });
+
+        this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
+        this.$store.commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
+        this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
+
+        this.handleCancelCreateBilling();
+      } catch (error) {
+        this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
+      }
+    },
+    handleCancelCreateBilling() {
+      this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
     }
   }
 };
