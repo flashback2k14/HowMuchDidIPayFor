@@ -40,6 +40,7 @@
     <md-dialog-alert
       :md-active.sync="dialogs.isShowCommentVisible"
       :md-content="privates.showableComment"
+      md-title="Anmerkung"
       md-confirm-text="Schließen"
     />
 
