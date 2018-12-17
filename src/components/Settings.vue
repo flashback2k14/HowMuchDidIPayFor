@@ -1,51 +1,40 @@
 <template>
   <div class="md-layout md-alignment-top-center setting-container_height">
-    <!-- card:prize history -->
-    <div class="md-layout-item md-size-95">
-      <md-card>
-        <md-card-header>
-          <div class="md-title">Preishistorie</div>
-          <md-divider></md-divider>
-        </md-card-header>
-
-        <md-card-content>
-          <div v-if="showErrorMessage">
-            <md-empty-state
-              md-icon="block"
-              md-label="Einstellungen"
-              md-description="Keine Daten vorhanden."
-            >
-            </md-empty-state>
-          </div>
-          <div v-else>
-            <price-history-table
-              :settings="settings"
-              @on-edit-setting="handleShowEditDialog"
-              @on-delete-setting="handleShowDeleteDialog"
-            />
-          </div>
-        </md-card-content>
-
+    <base-card
+      class="md-layout-item md-size-95"
+      title="Preishistorie"
+      :showEmptyMessage="showErrorMessage"
+    >
+      <template slot="else-part">
+        <price-history-table
+          :settings="settings"
+          @on-edit-setting="handleShowEditDialog"
+          @on-delete-setting="handleShowDeleteDialog"
+        />
+      </template>
+      <template slot="action-part">
         <md-card-actions>
           <md-button
             @click="dialogs.isCreateVisible = !dialogs.isCreateVisible;"
             >Neuen Eintrag anlegen</md-button
           >
         </md-card-actions>
-      </md-card>
-    </div>
+      </template>
+    </base-card>
+
     <create-setting-dialog
       :isVisible="dialogs.isCreateVisible"
-      @on-confirm="createSetting"
+      @on-confirm="handleCreateSetting"
       @on-cancel="handleCloseCreateDialog"
     />
+
     <edit-setting-dialog
       :isVisible="dialogs.isEditVisible"
       :editableSetting="privates.editableSetting"
-      @on-confirm="editSetting"
+      @on-confirm="handleEditSetting"
       @on-cancel="handleCloseEditDialog"
     />
-    <!-- dialog:delete setting -->
+
     <md-dialog-confirm
       :md-active.sync="dialogs.isDeleteVisible"
       md-title="Wollen Sie wirklich diesen Eintrag löschen?"
@@ -63,6 +52,7 @@ import { mapState } from "vuex";
 import { ActionType, MutationType, StateProperty } from "@/helper";
 import { creator, updater, deletter } from "@/database";
 
+import BaseCard from "./cards/BaseCard.vue";
 import PriceHistoryTable from "./datatables/PriceHistoryTable.vue";
 import CreateSettingDialog from "./dialogs/CreateSettingDialog.vue";
 import EditSettingDialog from "./dialogs/EditSettingDialog.vue";
@@ -70,6 +60,7 @@ import EditSettingDialog from "./dialogs/EditSettingDialog.vue";
 export default {
   name: "Settings",
   components: {
+    "base-card": BaseCard,
     "price-history-table": PriceHistoryTable,
     "create-setting-dialog": CreateSettingDialog,
     "edit-setting-dialog": EditSettingDialog
@@ -103,7 +94,7 @@ export default {
     handleCloseCreateDialog() {
       this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
     },
-    async createSetting(e) {
+    async handleCreateSetting(e) {
       try {
         await creator.setting(this[StateProperty.CURRENT_USER].uid, e.data);
         this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);
@@ -121,7 +112,7 @@ export default {
       this.privates.editableSetting = setting;
       this.handleCloseEditDialog();
     },
-    async editSetting(e) {
+    async handleEditSetting(e) {
       try {
         await updater.setting(this.privates.editableSetting.id, e.data);
         this.$store.dispatch(ActionType.FETCH_USER_SETTINGS);

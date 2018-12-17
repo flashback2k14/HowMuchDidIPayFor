@@ -16,17 +16,20 @@
         />
       </div>
     </div>
+
     <close-billing-dialog
       :isVisible.sync="dialogs.isCloseBillingVisible"
       @on-cancel="handleCancelCloseBilling"
       @on-confirm="handleConfirmCloseBilling"
     />
+
     <create-billing-entry-dialog
       :isVisible="dialogs.isCreateEntryVisible"
       :billingIntervals="currentBillingIntervals"
       @on-cancel="handleCloseCreateEntryDialog"
       @on-confirm="handleCreateBillingEntry"
     />
+
     <div class="container-fab">
       <md-button
         class="md-fab"

@@ -1,9 +1,9 @@
 <template>
   <div class="md-layout md-alignment-top-center billing-container_height">
-    <layout-card
+    <base-card
       class="md-layout-item md-size-95"
-      :showErrorMessage="showEmptyMessageBillings"
       title="Abrechnung"
+      :showErrorMessage="showEmptyMessageBillings"
     >
       <template slot="else-part">
         <billings-table
@@ -21,13 +21,13 @@
           >
         </md-card-actions>
       </template>
-    </layout-card>
+    </base-card>
 
-    <layout-card
+    <base-card
       class="md-layout-item md-size-95"
-      :showEmptyMessage="showEmptyMessageBillingEntries"
       title="Abrechnungseinträge"
       description="Keine Daten vorhanden oder keine Abrechnung ausgewählt."
+      :showEmptyMessage="showEmptyMessageBillingEntries"
     >
       <template slot="else-part">
         <billing-entries-table
@@ -35,11 +35,11 @@
           @on-show-comment="handleShowComment"
         />
       </template>
-    </layout-card>
+    </base-card>
 
     <create-billing-dialog
       :isVisible="dialogs.isCreateVisible"
-      @on-confirm="createBilling"
+      @on-confirm="handleCreateBilling"
       @on-cancel="handleCloseCreateDialog"
     />
 
@@ -67,7 +67,7 @@ import { mapState } from "vuex";
 import { ActionType, MutationType, StateProperty } from "@/helper";
 import { creator, deletter, reader } from "@/database";
 
-import LayoutCard from "./cards/LayoutCard.vue";
+import BaseCard from "./cards/BaseCard.vue";
 import BillingsTable from "./datatables/BillingsTable.vue";
 import BillingEntriesTable from "./datatables/BillingEntriesTable.vue";
 import CreateBillingDialog from "./dialogs/CreateBillingDialog.vue";
@@ -75,7 +75,7 @@ import CreateBillingDialog from "./dialogs/CreateBillingDialog.vue";
 export default {
   name: "Billings",
   components: {
-    "layout-card": LayoutCard,
+    "base-card": BaseCard,
     "billings-table": BillingsTable,
     "billing-entries-table": BillingEntriesTable,
     "create-billing-dialog": CreateBillingDialog
@@ -112,10 +112,6 @@ export default {
         isDeleteVisible: false,
         isShowCommentVisible: false
       },
-      form: {
-        month: null,
-        year: null
-      },
       privates: {
         deletedableBilling: null,
         showableComment: ""
@@ -138,7 +134,7 @@ export default {
     handleCloseCreateDialog() {
       this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
     },
-    async createBilling(e) {
+    async handleCreateBilling(e) {
       try {
         await creator.billing(this[StateProperty.CURRENT_USER].uid, {
           month: parseInt(e.data.month, 10),

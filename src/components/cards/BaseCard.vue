@@ -10,7 +10,7 @@
           <md-empty-state
             md-icon="block"
             :md-label="title"
-            md-description="Keine Daten vorhanden."
+            :md-description="description"
           >
           </md-empty-state>
         </div>
@@ -23,7 +23,7 @@
 
 <script>
 export default {
-  name: "LayoutCard",
+  name: "BaseCard",
   props: {
     showEmptyMessage: {
       type: Boolean,
