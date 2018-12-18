@@ -6,18 +6,7 @@ import { reader } from "@/database";
 
 Vue.use(Vuex);
 
-auth.onAuthStateChanged(user => {
-  if (user) {
-    store.commit(MutationType.SET_CURRENT_USER, user);
-    store.dispatch(ActionType.FETCH_USER_PROFILE);
-    store.dispatch(ActionType.FETCH_USER_SETTINGS);
-    store.dispatch(ActionType.FETCH_USER_BILLINGS);
-  } else {
-    store.dispatch(ActionType.CLEAR_STATE);
-  }
-});
-
-export const store = new Vuex.Store({
+const store = new Vuex.Store({
   state: {
     currentUser: null,
     currentSetting: null,
@@ -138,3 +127,16 @@ export const store = new Vuex.Store({
     }
   }
 });
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    store.commit(MutationType.SET_CURRENT_USER, user);
+    store.dispatch(ActionType.FETCH_USER_PROFILE);
+    store.dispatch(ActionType.FETCH_USER_SETTINGS);
+    store.dispatch(ActionType.FETCH_USER_BILLINGS);
+  } else {
+    store.dispatch(ActionType.CLEAR_STATE);
+  }
+});
+
+export default store;

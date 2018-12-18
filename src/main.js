@@ -5,7 +5,7 @@ import "vue-material/dist/theme/black-green-dark.css";
 
 import App from "@/App";
 import router from "@/router";
-import { store } from "@/store";
+import store from "@/store";
 import { auth } from "@/config/firebaseConfig";
 import registerServiceWorker from "@/config/registerServiceWorker";
 import "@/filters";
