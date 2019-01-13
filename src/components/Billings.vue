@@ -12,6 +12,7 @@
           @on-show-comment="handleShowCommentDialog"
           @on-edit="handleShowEditDialog"
           @on-delete="handleShowDeleteDialog"
+          @on-recalc-currentsaldo="handleRecalcCurrentsaldo"
         />
       </template>
       <template slot="action-part">
@@ -93,6 +94,7 @@ export default {
   computed: {
     ...mapState([
       StateProperty.CURRENT_USER,
+      StateProperty.CURRENT_SETTING,
       StateProperty.CURRENT_BILLING_ENTRIES,
       StateProperty.USER_BILLINGS
     ]),
@@ -184,12 +186,8 @@ export default {
           const promHolder = entries.docs.map(deletter.billingEntry);
           await Promise.all(promHolder);
         }
-
-        this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
-        this.$store.commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
-        this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
-
-        this.privates.deletedableBilling = null;
+        this._updateStore();
+        this.handleCancelDeleteBilling();
       } catch (error) {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }
@@ -207,11 +205,7 @@ export default {
           month: parseInt(e.data.month, 10),
           year: parseInt(e.data.year, 10)
         });
-
-        this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
-        this.$store.commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
-        this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
-
+        this._updateStore();
         this.handleCancelCreateBilling();
       } catch (error) {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
@@ -219,6 +213,43 @@ export default {
     },
     handleCancelCreateBilling() {
       this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
+    },
+    // recalc
+    async handleRecalcCurrentsaldo(e) {
+      const billingEntries = this[StateProperty.CURRENT_BILLING_ENTRIES];
+
+      if (billingEntries.length <= 0) {
+        return;
+      }
+
+      const currentSetting = this[StateProperty.CURRENT_SETTING];
+
+      let currentSaldo = 0;
+
+      billingEntries.forEach(entry => {
+        if (entry.hasBreakfast) {
+          currentSaldo += currentSetting.breakfastPrize;
+        }
+        if (entry.hasLunch) {
+          currentSaldo += currentSetting.lunchPrize;
+        }
+        if (entry.hasAfternoonSnack) {
+          currentSaldo += currentSetting.afternoonSnackPrize;
+        }
+      });
+
+      try {
+        await updater.billing.currentSaldo(e.data.id, currentSaldo);
+        this._updateStore();
+      } catch (error) {
+        this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
+      }
+    },
+    // util
+    _updateStore() {
+      this.$store.commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
+      this.$store.commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
+      this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
     }
   }
 };

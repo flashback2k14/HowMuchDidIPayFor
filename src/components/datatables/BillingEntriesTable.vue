@@ -1,9 +1,5 @@
 <template>
-  <md-table
-    class="entries-table_height"
-    :value="billingEntries"
-    md-fixed-header
-  >
+  <md-table class="entries-table_height" :value="billingEntries">
     <md-table-row slot="md-table-row" slot-scope="{ item }">
       <md-table-cell md-label="Position" md-numeric>{{
         item.pos

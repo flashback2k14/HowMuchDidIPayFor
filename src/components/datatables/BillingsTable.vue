@@ -48,6 +48,14 @@
           <md-icon>delete</md-icon>
         </md-button>
       </md-table-cell>
+      <md-table-cell md-label="Aktualisierung">
+        <md-button
+          class="md-icon-button md-dense"
+          @click="handleRecalcCurrentSaldo(item);"
+        >
+          <md-icon>attach_money</md-icon>
+        </md-button>
+      </md-table-cell>
     </md-table-row>
   </md-table>
 </template>
@@ -72,6 +80,9 @@ export default {
     },
     handleDelete(billing) {
       this.$emit("on-delete", { data: billing });
+    },
+    handleRecalcCurrentSaldo(billing) {
+      this.$emit("on-recalc-currentsaldo", { data: billing });
     }
   }
 };

@@ -74,15 +74,19 @@ export default {
   methods: {
     handleConfirm() {
       this.$emit("on-confirm", { data: this.form });
+      this._clearDialog();
     },
     handleCancel() {
+      this._clearDialog();
+      this.$emit("on-cancel");
+    },
+    _clearDialog() {
       this.form.billing = null;
       this.form.hasBreakfast = null;
       this.form.hasLunch = null;
       this.form.hasAfternoonSnack = null;
       this.form.date = null;
       this.form.comment = null;
-      this.$emit("on-cancel");
     }
   }
 };
