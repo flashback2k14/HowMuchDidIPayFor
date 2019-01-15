@@ -34,26 +34,28 @@
         <billing-entries-table
           :billingEntries="billingEntries"
           @on-show-comment="handleShowCommentDialog"
+          @on-edit="handleShowEntryEditDialog"
+          @on-delete="handleShowEntryDeleteDialog"
         />
       </template>
     </base-card>
 
     <md-dialog-alert
-      :md-active.sync="dialogs.isShowCommentVisible"
+      :md-active.sync="dialog.isCommentVisible"
       :md-content="privates.showableComment"
       md-title="Anmerkung"
       md-confirm-text="Schließen"
     />
 
     <edit-billing-dialog
-      :isVisible="dialogs.isEditVisible"
-      :editableItem="privates.editableBilling"
+      :isVisible="dialog.billing.isEditVisible"
+      :editableItem="privates.billing.editableItem"
       @on-confirm="handleConfirmEditBilling"
       @on-cancel="handleCancelEditBilling"
     />
 
     <md-dialog-confirm
-      :md-active.sync="dialogs.isDeleteVisible"
+      :md-active.sync="dialog.billing.isDeleteVisible"
       md-title="Wollen Sie wirklich diesen Eintrag löschen?"
       md-content="Hinweis: Diese Aktion löscht auch alle verbundenen Abrechnungseinträge."
       md-confirm-text="Ja"
@@ -63,7 +65,7 @@
     />
 
     <create-billing-dialog
-      :isVisible="dialogs.isCreateVisible"
+      :isVisible="dialog.billing.isCreateVisible"
       @on-confirm="handleConfirmCreateBilling"
       @on-cancel="handleCancelCreateBilling"
     />
@@ -119,16 +121,28 @@ export default {
   },
   data() {
     return {
-      dialogs: {
-        isShowCommentVisible: false,
-        isEditVisible: false,
-        isDeleteVisible: false,
-        isCreateVisible: false
+      dialog: {
+        isCommentVisible: false,
+        billing: {
+          isEditVisible: false,
+          isDeleteVisible: false,
+          isCreateVisible: false
+        },
+        entry: {
+          isEditVisible: false,
+          isDeleteVisible: false
+        }
       },
       privates: {
         showableComment: "",
-        editableBilling: {},
-        deletedableBilling: null
+        billing: {
+          editableItem: {},
+          deleteableItem: null
+        },
+        entry: {
+          editableItem: {},
+          deleteableItem: null
+        }
       }
     };
   },
@@ -149,37 +163,47 @@ export default {
     // showing
     handleShowCommentDialog(e) {
       this.privates.showableComment = e.data.comment;
-      this.dialogs.isShowCommentVisible = !this.dialogs.isShowCommentVisible;
+      this.dialog.isCommentVisible = !this.dialog.isCommentVisible;
     },
     // editing
     handleShowEditDialog(e) {
-      this.privates.editableBilling = e.data;
-      this.dialogs.isEditVisible = !this.dialogs.isEditVisible;
+      this.privates.billing.editableItem = e.data;
+      this.dialog.billing.isEditVisible = !this.dialog.billing.isEditVisible;
+    },
+    handleShowEntryEditDialog(e) {
+      console.log("TODO: edit billing entry %s", e.data.id);
     },
     async handleConfirmEditBilling(e) {
       try {
-        await updater.billing.period(this.privates.editableBilling.id, e.data);
+        await updater.billing.period(
+          this.privates.billing.editableItem.id,
+          e.data
+        );
         this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
-        this.privates.editableBilling = {};
+        this.privates.billing.editableItem = {};
         this.handleCancelEditBilling();
       } catch (error) {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }
     },
     handleCancelEditBilling() {
-      this.privates.editableBilling = {};
-      this.dialogs.isEditVisible = !this.dialogs.isEditVisible;
+      this.privates.billing.editableItem = {};
+      this.dialog.billing.isEditVisible = !this.dialog.billing.isEditVisible;
     },
     // deleting
     handleShowDeleteDialog(e) {
-      this.privates.deletedableBilling = e.data;
-      this.dialogs.isDeleteVisible = !this.dialogs.isDeleteVisible;
+      this.privates.billing.deleteableItem = e.data;
+      this.dialog.billing.isDeleteVisible = !this.dialog.billing
+        .isDeleteVisible;
+    },
+    handleShowEntryDeleteDialog(e) {
+      console.log("TODO: delete billing entry %s", e.data.id);
     },
     async handleConfirmDeleteBilling() {
       try {
-        await deletter.billing(this.privates.deletedableBilling.id);
+        await deletter.billing(this.privates.billing.deleteableItem.id);
         const entries = await reader.billingEntries(
-          this.privates.deletedableBilling.id
+          this.privates.billing.deleteableItem.id
         );
 
         if (!entries.empty) {
@@ -193,11 +217,12 @@ export default {
       }
     },
     handleCancelDeleteBilling() {
-      this.privates.deletedableBilling = null;
+      this.privates.billing.deleteableItem = null;
     },
     // creation
     handleShowCreateDialog() {
-      this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
+      this.dialog.billing.isCreateVisible = !this.dialog.billing
+        .isCreateVisible;
     },
     async handleConfirmCreateBilling(e) {
       try {
@@ -212,7 +237,8 @@ export default {
       }
     },
     handleCancelCreateBilling() {
-      this.dialogs.isCreateVisible = !this.dialogs.isCreateVisible;
+      this.dialog.billing.isCreateVisible = !this.dialog.billing
+        .isCreateVisible;
     },
     // recalc
     async handleRecalcCurrentsaldo(e) {

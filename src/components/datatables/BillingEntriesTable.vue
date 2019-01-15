@@ -25,6 +25,16 @@
           <md-icon>mode_comment</md-icon>
         </md-button>
       </md-table-cell>
+      <md-table-cell md-label="Bearbeiten">
+        <md-button class="md-icon-button md-dense" @click="handleEdit(item);">
+          <md-icon>edit</md-icon>
+        </md-button>
+      </md-table-cell>
+      <md-table-cell md-label="Löschen">
+        <md-button class="md-icon-button md-dense" @click="handleDelete(item);">
+          <md-icon>delete</md-icon>
+        </md-button>
+      </md-table-cell>
     </md-table-row>
   </md-table>
 </template>
@@ -38,8 +48,14 @@ export default {
     }
   },
   methods: {
-    handleShowComment(billing) {
-      this.$emit("on-show-comment", { data: billing });
+    handleShowComment(entry) {
+      this.$emit("on-show-comment", { data: entry });
+    },
+    handleEdit(entry) {
+      this.$emit("on-edit", { data: entry });
+    },
+    handleDelete(entry) {
+      this.$emit("on-delete", { data: entry });
     }
   }
 };

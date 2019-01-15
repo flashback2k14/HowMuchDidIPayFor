@@ -3,7 +3,8 @@ import Vue from "vue";
 const dateFormatter = new Intl.DateTimeFormat("de-DE", {
   year: "numeric",
   month: "long",
-  day: "numeric"
+  day: "numeric",
+  weekday: "short"
 });
 
 Vue.filter("formattedDate", function(value) {
