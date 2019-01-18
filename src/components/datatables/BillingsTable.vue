@@ -90,6 +90,6 @@ export default {
 
 <style>
 .billing-table_height {
-  height: 40vh;
+  height: 42vh;
 }
 </style>
