@@ -25,7 +25,6 @@
 
     <create-billing-entry-dialog
       :isVisible="dialogs.isCreateEntryVisible"
-      :billingIntervals="currentBillingIntervals"
       @on-cancel="handleCloseCreateEntryDialog"
       @on-confirm="handleCreateBillingEntry"
     />
@@ -71,17 +70,6 @@ export default {
     },
     billings: function() {
       return this[StateProperty.CURRENT_BILLINGS];
-    },
-    currentBillingIntervals: function() {
-      if (this[StateProperty.CURRENT_BILLINGS]) {
-        return this[StateProperty.CURRENT_BILLINGS].map(billing => {
-          return {
-            text: `${billing.month}.${billing.year}`,
-            value: billing.id
-          };
-        });
-      }
-      return [{ text: "", value: "" }];
     }
   },
   data() {
@@ -141,7 +129,7 @@ export default {
     },
     async handleCreateBillingEntry(e) {
       try {
-        const formData = e.data;
+        const formData = { ...e.data };
         await creator.billingEntry(formData);
         const newCurrentSaldo = this._calcNewCurrentSaldo(formData);
         await updater.billing.currentSaldo(formData.billing, newCurrentSaldo);

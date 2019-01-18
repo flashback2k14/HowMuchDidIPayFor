@@ -86,8 +86,15 @@ export const updater = {
       });
     }
   },
-  billingEntry: async function() {
-    throw new Error("updater - billingEntry not implemented");
+  billingEntry: async function(entryId, formData) {
+    return await billingEntries.doc(entryId).update({
+      billingId: formData.billing,
+      date: formData.date,
+      hasAfternoonSnack: !!formData.hasAfternoonSnack,
+      hasBreakfast: !!formData.hasBreakfast,
+      hasLunch: !!formData.hasLunch,
+      comment: formData.comment
+    });
   },
   setting: async function(settingId, formData) {
     return await settings.doc(settingId).update({

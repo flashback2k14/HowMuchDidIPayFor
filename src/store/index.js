@@ -11,6 +11,7 @@ const store = new Vuex.Store({
     currentUser: null,
     currentSetting: null,
     currentBillings: null,
+    currentBillingIntervals: null,
     currentSelectedBilling: null,
     currentBillingEntries: [],
     currentError: null,
@@ -23,6 +24,7 @@ const store = new Vuex.Store({
       commit(MutationType.SET_CURRENT_USER, null);
       commit(MutationType.SET_CURRENT_SETTING, null);
       commit(MutationType.SET_CURRENT_BILLINGS, null);
+      commit(MutationType.SET_CURRENT_BILLING_INTERVALLS, null);
       commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
       commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
       commit(MutationType.SET_CURRENT_ERROR, null);
@@ -68,6 +70,7 @@ const store = new Vuex.Store({
         }
         const docs = extendDocuments(result.docs);
         commit(MutationType.SET_CURRENT_BILLINGS, docs);
+        commit(MutationType.SET_CURRENT_BILLING_INTERVALLS, docs);
         commit(MutationType.SET_USER_BILLINGS, docs);
       } catch (error) {
         commit(MutationType.SET_CURRENT_ERROR, error);
@@ -102,6 +105,19 @@ const store = new Vuex.Store({
     setCurrentBillings(state, docs) {
       state.currentBillings =
         docs === null ? null : docs.filter(item => item.isPaid === false);
+    },
+    setCurrentBillingIntervalls(state, docs) {
+      state.currentBillingIntervals =
+        docs === null
+          ? [{ text: "", value: "" }]
+          : docs
+              .filter(item => item.isPaid === false)
+              .map(billing => {
+                return {
+                  text: `${billing.month}.${billing.year}`,
+                  value: billing.id
+                };
+              });
     },
     setCurrentSelectedBilling(state, selectedBilling) {
       state.currentSelectedBilling = selectedBilling;

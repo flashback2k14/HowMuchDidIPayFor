@@ -62,11 +62,15 @@ export default {
   methods: {
     handleConfirm() {
       this.$emit("on-confirm", { data: this.form });
+      this._clearDialog();
     },
     handleCancel() {
+      this.$emit("on-cancel");
+      this._clearDialog();
+    },
+    _clearDialog() {
       this.form.month = null;
       this.form.year = null;
-      this.$emit("on-cancel");
     }
   }
 };
