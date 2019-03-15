@@ -1,6 +1,12 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import { extendDocuments, ActionType, MutationType } from "@/helper";
+import {
+  convertDocument,
+  setDocumentPosition,
+  immutableSort,
+  ActionType,
+  MutationType
+} from "@/helper";
 import { auth } from "@/config/firebaseConfig";
 import { reader } from "@/database";
 
@@ -55,7 +61,7 @@ const store = new Vuex.Store({
         if (result.empty) {
           return;
         }
-        const docs = extendDocuments(result.docs);
+        const docs = convertDocument(result.docs);
         commit(MutationType.SET_CURRENT_SETTING, docs);
         commit(MutationType.SET_USER_SETTINGS, docs);
       } catch (error) {
@@ -68,7 +74,7 @@ const store = new Vuex.Store({
         if (result.empty) {
           return;
         }
-        const docs = extendDocuments(result.docs);
+        const docs = convertDocument(result.docs);
         commit(MutationType.SET_CURRENT_BILLINGS, docs);
         commit(MutationType.SET_CURRENT_BILLING_INTERVALLS, docs);
         commit(MutationType.SET_USER_BILLINGS, docs);
@@ -84,7 +90,8 @@ const store = new Vuex.Store({
         if (result.empty) {
           return;
         }
-        commit(MutationType.SET_CURRENT_BILLING_ENTRIES, result.docs);
+        const docs = convertDocument(result.docs);
+        commit(MutationType.SET_CURRENT_BILLING_ENTRIES, docs);
       } catch (error) {
         commit(MutationType.SET_CURRENT_ERROR, error);
       }
@@ -123,8 +130,8 @@ const store = new Vuex.Store({
       state.currentSelectedBilling = selectedBilling;
     },
     setCurrentBillingEntries(state, docs) {
-      state.currentBillingEntries = extendDocuments(docs).sort(
-        (a, b) => b.date.seconds - a.date.seconds
+      state.currentBillingEntries = setDocumentPosition(
+        immutableSort(docs, (a, b) => b.date.seconds - a.date.seconds)
       );
     },
     setCurrentError(state, error) {
@@ -134,11 +141,19 @@ const store = new Vuex.Store({
       state.userProfile = profile;
     },
     setUserSettings(state, docs) {
-      state.userSettings = docs.sort((a, b) => b.pos - a.pos);
+      state.userSettings = setDocumentPosition(
+        immutableSort(
+          docs,
+          (a, b) => b.expirationDate.seconds - a.expirationDate.seconds
+        )
+      );
     },
     setUserBillings(state, docs) {
-      state.userBillings = docs.sort(
-        (a, b) => b.year * 1000 + b.month - (a.year * 1000 + a.month)
+      state.userBillings = setDocumentPosition(
+        immutableSort(
+          docs,
+          (a, b) => b.year * 1000 + b.month - (a.year * 1000 + a.month)
+        )
       );
     }
   }

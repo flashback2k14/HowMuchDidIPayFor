@@ -28,8 +28,4 @@ auth.onAuthStateChanged(user => {
 });
 
 // TODO
-//  Edit Entry
-//    recalc current saldo
-//  Delete Entry
-//    recalc current saldo
 //  Archive Billings and Entries

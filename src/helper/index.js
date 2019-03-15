@@ -34,11 +34,21 @@ export const StateProperty = {
   USER_BILLINGS: "userBillings"
 };
 
-export const extendDocuments = docs => {
+export const convertDocument = docs => {
   return docs.map((item, index) => {
     let doc = item.data();
     doc.id = item.id;
-    doc.pos = ++index;
     return doc;
   });
+};
+
+export const setDocumentPosition = docs => {
+  return docs.map((item, index) => {
+    item.pos = ++index;
+    return item;
+  });
+};
+
+export const immutableSort = (arr, compareFunction) => {
+  return [...arr].sort(compareFunction);
 };
