@@ -18,7 +18,7 @@ const store = new Vuex.Store({
     currentSetting: null,
     currentBillings: null,
     currentBillingIntervals: null,
-    currentBillingCoveredDays: {},
+    currentBillingCoveredDays: null,
     currentSelectedBilling: null,
     currentBillingEntries: [],
     currentError: null,
@@ -32,7 +32,7 @@ const store = new Vuex.Store({
       commit(MutationType.SET_CURRENT_SETTING, null);
       commit(MutationType.SET_CURRENT_BILLINGS, null);
       commit(MutationType.SET_CURRENT_BILLING_INTERVALLS, null);
-      commit(MutationType.SET_CURRENT_BILLING_COVERED_DAYS, {});
+      commit(MutationType.SET_CURRENT_BILLING_COVERED_DAYS, null);
       commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
       commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
       commit(MutationType.SET_CURRENT_ERROR, null);
@@ -130,16 +130,16 @@ const store = new Vuex.Store({
               });
     },
     setCurrentBillingCoveredDays(state, docs) {
-      if (!docs) {
-        return null;
+      if (docs === null) {
+        state.currentBillingCoveredDays = {};
+      } else {
+        docs
+          .filter(item => item.isPaid === false)
+          .forEach(billing => {
+            state.currentBillingCoveredDays[billing.id] =
+              billing.coveredDays || [];
+          });
       }
-
-      docs
-        .filter(item => item.isPaid === false)
-        .forEach(billing => {
-          state.currentBillingCoveredDays[billing.id] =
-            billing.coveredDays || [];
-        });
     },
     setCurrentSelectedBilling(state, selectedBilling) {
       state.currentSelectedBilling = selectedBilling;
