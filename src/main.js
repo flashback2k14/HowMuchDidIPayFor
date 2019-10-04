@@ -28,4 +28,4 @@ auth.onAuthStateChanged(() => {
 });
 
 // TODO
-//  Archive Billings and Entries
+//  - Archive Billings and Entries

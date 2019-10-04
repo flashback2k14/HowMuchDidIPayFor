@@ -26,7 +26,8 @@ export const creator = {
       isPaid: false,
       userId: userId,
       month: formData.month,
-      year: formData.year
+      year: formData.year,
+      coveredDays: []
     });
   },
   billingEntry: async formData => {
@@ -78,6 +79,11 @@ export const updater = {
         billingSaldo: formData.billingSaldo,
         comment: formData.comment,
         isPaid: true
+      });
+    },
+    coveredDay: async (billingId, days, day) => {
+      return await billings.doc(billingId).update({
+        coveredDays: [...days, new Date(day).getDate()]
       });
     },
     currentSaldo: async (billingId, newCurrentSaldo) => {
