@@ -40,6 +40,9 @@
           <label>Anmerkung</label>
           <md-textarea v-model="form.comment"></md-textarea>
         </md-field>
+        <md-checkbox class="remove-bottom_margin" v-model="form.preventClosing"
+          >Mehr hinzufügen</md-checkbox
+        >
       </md-dialog-content>
       <md-dialog-actions>
         <md-button class="md-primary" @click="handleCancel"
@@ -83,7 +86,8 @@ export default {
         hasLunch: null,
         hasAfternoonSnack: null,
         date: null,
-        comment: null
+        comment: null,
+        preventClosing: false
       },
       disabledDates: date => {
         const day = date.getDay();
@@ -104,18 +108,23 @@ export default {
   methods: {
     handleConfirm() {
       this.$emit("on-confirm", { data: this.form });
+      const billingId = this.form.preventClosing ? this.form.billing : -1;
       this._clearDialog();
+      if (this.form.preventClosing) {
+        this.form.billing = billingId;
+      }
     },
     handleCancel() {
       this._clearDialog();
+      this.form.preventClosing = false;
       this.$emit("on-cancel");
     },
     _clearDialog() {
       this.form.billing = null;
-      this.form.hasBreakfast = null;
-      this.form.hasLunch = null;
-      this.form.hasAfternoonSnack = null;
       this.form.date = null;
+      this.form.hasAfternoonSnack = null;
+      this.form.hasLunch = null;
+      this.form.hasBreakfast = null;
       this.form.comment = null;
     }
   }
@@ -123,6 +132,10 @@ export default {
 </script>
 
 <style>
+.md-dialog-content:first-child {
+  padding-top: 0;
+  padding-bottom: 0;
+}
 .remove-bottom_margin {
   margin-bottom: 0;
 }
