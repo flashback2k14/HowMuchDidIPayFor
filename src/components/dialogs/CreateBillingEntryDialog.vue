@@ -22,9 +22,8 @@
               v-for="interval in billingIntervals"
               :value="interval.value"
               :key="interval.value"
+              >{{ interval.text }}</md-option
             >
-              {{ interval.text }}
-            </md-option>
           </md-select>
         </md-field>
         <md-datepicker
@@ -51,9 +50,10 @@
     </form>
   </md-dialog>
 </template>
+
 <script>
 import { mapState } from "vuex";
-import { StateProperty } from "@/helper";
+import { StateProperty } from "./../../helper";
 
 export default {
   name: "CreateBillingEntryDialog",

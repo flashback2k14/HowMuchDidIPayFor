@@ -6,9 +6,9 @@ import {
   immutableSort,
   ActionType,
   MutationType
-} from "@/helper";
-import { auth } from "@/config/firebaseConfig";
-import { reader } from "@/database";
+} from "./../helper";
+import { auth } from "./../config/firebaseConfig";
+import { reader } from "./../database";
 
 Vue.use(Vuex);
 

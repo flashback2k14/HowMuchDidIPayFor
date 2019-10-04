@@ -45,9 +45,8 @@
               type="submit"
               class="md-primary"
               :disabled="flags.waitingForRequestAnswer"
+              >Anmeldung</md-button
             >
-              Anmeldung
-            </md-button>
           </md-card-actions>
         </md-card>
       </form>
@@ -56,8 +55,8 @@
 </template>
 
 <script>
-import { ActionType, MutationType } from "@/helper";
-import { auth } from "@/database";
+import { ActionType, MutationType } from "./../helper";
+import { auth } from "./../database";
 
 export default {
   name: "Login",

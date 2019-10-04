@@ -17,11 +17,6 @@ firebase.initializeApp(config);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// fix date issues
-db.settings({
-  timestampsInSnapshots: true
-});
-
 // collections
 const users = db.collection("users");
 const settings = db.collection("settings");

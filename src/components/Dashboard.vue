@@ -6,8 +6,7 @@
           md-icon="block"
           md-label="Übersicht"
           md-description="Keine Daten vorhanden."
-        >
-        </md-empty-state>
+        ></md-empty-state>
       </div>
       <div v-else v-for="billing in billings" :key="billing.id">
         <billing-card
@@ -32,7 +31,7 @@
     <div class="container-fab">
       <md-button
         class="md-fab"
-        @click="dialogs.isCreateEntryVisible = !dialogs.isCreateEntryVisible;"
+        @click="dialogs.isCreateEntryVisible = !dialogs.isCreateEntryVisible"
       >
         <md-icon>add</md-icon>
       </md-button>
@@ -43,8 +42,8 @@
 <script>
 import { mapState } from "vuex";
 
-import { ActionType, MutationType, StateProperty } from "@/helper";
-import { creator, updater } from "@/database";
+import { ActionType, MutationType, StateProperty } from "./../helper";
+import { creator, updater } from "./../database";
 
 import BillingCard from "./cards/BillingCard.vue";
 import CloseBillingDialog from "./dialogs/CloseBillingDialog.vue";
