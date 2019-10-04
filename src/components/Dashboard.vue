@@ -135,6 +135,10 @@ export default {
     async handleCreateBillingEntry(e) {
       try {
         const formData = { ...e.data };
+        if (!formData.preventClosing) {
+          this.handleCloseCreateEntryDialog();
+        }
+
         await creator.billingEntry(formData);
         const newCurrentSaldo = this._calcNewCurrentSaldo(formData);
         await updater.billing.currentSaldo(formData.billing, newCurrentSaldo);
@@ -144,7 +148,6 @@ export default {
           formData.date
         );
         this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
-        this.handleCloseCreateEntryDialog();
       } catch (error) {
         this.$store.commit(MutationType.SET_CURRENT_ERROR, error);
       }

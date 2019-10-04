@@ -1,13 +1,13 @@
 {
   "name": "howmuchdidipayfor",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "now-build": "npm run build",
-    "deploy": "npx now --prod ."
+    "deploy": "npm run build && npx now --prod ."
   },
   "dependencies": {
     "core-js": "^3.2.1",
