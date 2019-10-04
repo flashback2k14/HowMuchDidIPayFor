@@ -28,7 +28,7 @@
         </md-field>
         <md-datepicker
           v-model.trim="form.date"
-          :md-disabled-dates="disabledDates"
+          :md-disabled-dates="disabledDates.bind(this)"
           md-immediately
         >
           <label>Datum</label>
@@ -64,9 +64,15 @@ export default {
     }
   },
   computed: {
-    ...mapState([StateProperty.CURRENT_BILLING_INTERVALS]),
+    ...mapState([
+      StateProperty.CURRENT_BILLING_INTERVALS,
+      StateProperty.CURRENT_BILLING_COVERED_DAYS
+    ]),
     billingIntervals: function() {
       return this[StateProperty.CURRENT_BILLING_INTERVALS];
+    },
+    coveredBillingDays: function() {
+      return this[StateProperty.CURRENT_BILLING_COVERED_DAYS];
     }
   },
   data() {
@@ -81,7 +87,17 @@ export default {
       },
       disabledDates: date => {
         const day = date.getDay();
-        return day === 6 || day === 0;
+        if (day === 6 || day === 0) {
+          return true;
+        }
+
+        if (!this.form.billing || !this.coveredBillingDays) {
+          return false;
+        }
+
+        const currentDate = date.getDate();
+        const coveredDays = this.coveredBillingDays[this.form.billing];
+        return coveredDays.indexOf(currentDate) !== -1;
       }
     };
   },

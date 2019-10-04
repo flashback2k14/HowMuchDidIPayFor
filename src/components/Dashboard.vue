@@ -109,11 +109,11 @@ export default {
       this.dialogs.isCreateEntryVisible = !this.dialogs.isCreateEntryVisible;
     },
     _calcNewCurrentSaldo(formData) {
-      const billing = this[StateProperty.CURRENT_BILLINGS].filter(
+      const billings = this[StateProperty.CURRENT_BILLINGS].filter(
         billing => billing.id === formData.billing
       );
 
-      let saldo = billing[0].currentSaldo;
+      let saldo = billings[0].currentSaldo;
 
       if (formData.hasBreakfast) {
         saldo += this[StateProperty.CURRENT_SETTING].breakfastPrize;
@@ -126,12 +126,23 @@ export default {
       }
       return saldo;
     },
+    _getCoveredDays(billingId) {
+      const billings = this[StateProperty.CURRENT_BILLINGS].filter(
+        billing => billing.id === billingId
+      );
+      return billings[0].coveredDays || [];
+    },
     async handleCreateBillingEntry(e) {
       try {
         const formData = { ...e.data };
         await creator.billingEntry(formData);
         const newCurrentSaldo = this._calcNewCurrentSaldo(formData);
         await updater.billing.currentSaldo(formData.billing, newCurrentSaldo);
+        await updater.billing.coveredDay(
+          formData.billing,
+          this._getCoveredDays(formData.billing),
+          formData.date
+        );
         this.$store.dispatch(ActionType.FETCH_USER_BILLINGS);
         this.handleCloseCreateEntryDialog();
       } catch (error) {
