@@ -92,8 +92,8 @@
 <script>
 import { mapState } from "vuex";
 
-import { ActionType, MutationType, StateProperty } from "@/helper";
-import { creator, reader, updater, deletter } from "@/database";
+import { ActionType, MutationType, StateProperty } from "./../helper";
+import { creator, reader, updater, deletter } from "./../database";
 
 import BaseCard from "./cards/BaseCard.vue";
 import BillingsTable from "./datatables/BillingsTable.vue";

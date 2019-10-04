@@ -48,8 +48,8 @@
 <script>
 import { mapState } from "vuex";
 
-import { ActionType, MutationType, StateProperty } from "@/helper";
-import { creator, updater, deletter } from "@/database";
+import { ActionType, MutationType, StateProperty } from "./../helper";
+import { creator, updater, deletter } from "./../database";
 
 import BaseCard from "./cards/BaseCard.vue";
 import PriceHistoryTable from "./datatables/PriceHistoryTable.vue";

@@ -4,22 +4,22 @@ import {
   billingEntries,
   users,
   settings
-} from "@/config/firebaseConfig";
+} from "./../config/firebaseConfig";
 
 export const auth = {
-  login: async function(formData) {
+  login: async formData => {
     return await firebaseAuth.signInWithEmailAndPassword(
       formData.email,
       formData.password
     );
   },
-  logout: async function() {
+  logout: async () => {
     return await firebaseAuth.signOut();
   }
 };
 
 export const creator = {
-  billing: async function(userId, formData) {
+  billing: async (userId, formData) => {
     return await billings.add({
       billingSaldo: 0,
       currentSaldo: 0,
@@ -29,7 +29,7 @@ export const creator = {
       year: formData.year
     });
   },
-  billingEntry: async function(formData) {
+  billingEntry: async formData => {
     return await billingEntries.add({
       billingId: formData.billing,
       date: formData.date,
@@ -39,7 +39,7 @@ export const creator = {
       comment: formData.comment
     });
   },
-  setting: async function(userId, formData) {
+  setting: async (userId, formData) => {
     return await settings.add({
       breakfastPrize: parseFloat(formData.breakfastPrize),
       lunchPrize: parseFloat(formData.lunchPrize),
@@ -51,42 +51,42 @@ export const creator = {
 };
 
 export const reader = {
-  billings: async function(userId) {
+  billings: async userId => {
     return await billings.where("userId", "==", userId).get();
   },
-  billingEntries: async function(billingId) {
+  billingEntries: async billingId => {
     return await billingEntries.where("billingId", "==", billingId).get();
   },
-  profile: async function(userId) {
+  profile: async userId => {
     return await users.doc(userId).get();
   },
-  settings: async function(userId) {
+  settings: async userId => {
     return await settings.where("userId", "==", userId).get();
   }
 };
 
 export const updater = {
   billing: {
-    period: async function(billingId, formData) {
+    period: async (billingId, formData) => {
       return await billings.doc(billingId).update({
         month: parseInt(formData.month, 10),
         year: parseInt(formData.year, 10)
       });
     },
-    billingSaldo: async function(billingId, formData) {
+    billingSaldo: async (billingId, formData) => {
       return await billings.doc(billingId).update({
         billingSaldo: formData.billingSaldo,
         comment: formData.comment,
         isPaid: true
       });
     },
-    currentSaldo: async function(billingId, newCurrentSaldo) {
+    currentSaldo: async (billingId, newCurrentSaldo) => {
       return await billings.doc(billingId).update({
         currentSaldo: newCurrentSaldo
       });
     }
   },
-  billingEntry: async function(entryId, formData) {
+  billingEntry: async (entryId, formData) => {
     return await billingEntries.doc(entryId).update({
       billingId: formData.billing,
       date: formData.date,
@@ -96,7 +96,7 @@ export const updater = {
       comment: formData.comment
     });
   },
-  setting: async function(settingId, formData) {
+  setting: async (settingId, formData) => {
     return await settings.doc(settingId).update({
       breakfastPrize: parseFloat(formData.breakfastPrize),
       lunchPrize: parseFloat(formData.lunchPrize),
@@ -107,13 +107,13 @@ export const updater = {
 };
 
 export const deletter = {
-  billing: async function(billingId) {
+  billing: async billingId => {
     return await billings.doc(billingId).delete();
   },
-  billingEntry: async function(entry) {
+  billingEntry: async entry => {
     return await billingEntries.doc(entry.id).delete();
   },
-  setting: async function(settingId) {
+  setting: async settingId => {
     return await settings.doc(settingId).delete();
   }
 };

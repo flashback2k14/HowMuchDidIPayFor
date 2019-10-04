@@ -1,12 +1,12 @@
 import Vue from "vue";
 import Router from "vue-router";
 
-import Login from "@/components/Login";
-import Dashboard from "@/components/Dashboard";
-import Billings from "@/components/Billings";
-import Settings from "@/components/Settings";
+import Login from "./../components/Login";
+import Dashboard from "./../components/Dashboard";
+import Billings from "./../components/Billings";
+import Settings from "./../components/Settings";
 
-import { auth } from "@/config/firebaseConfig";
+import { auth } from "./../config/firebaseConfig";
 
 Vue.use(Router);
 

@@ -20,18 +20,18 @@
         <md-button
           class="md-icon-button md-dense"
           :disabled="!item.comment"
-          @click="handleShowComment(item);"
+          @click="handleShowComment(item)"
         >
           <md-icon>mode_comment</md-icon>
         </md-button>
       </md-table-cell>
       <md-table-cell md-label="Bearbeiten">
-        <md-button class="md-icon-button md-dense" @click="handleEdit(item);">
+        <md-button class="md-icon-button md-dense" @click="handleEdit(item)">
           <md-icon>edit</md-icon>
         </md-button>
       </md-table-cell>
       <md-table-cell md-label="Löschen">
-        <md-button class="md-icon-button md-dense" @click="handleDelete(item);">
+        <md-button class="md-icon-button md-dense" @click="handleDelete(item)">
           <md-icon>delete</md-icon>
         </md-button>
       </md-table-cell>

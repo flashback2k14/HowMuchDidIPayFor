@@ -4,7 +4,7 @@
       <div class="md-toolbar-row">
         <md-icon>donut_large</md-icon>
         <div class="md-toolbar-section-start">
-          <span class="md-title"> KEP </span>
+          <span class="md-title">KEP</span>
         </div>
 
         <div class="md-toolbar-section-end">
@@ -31,22 +31,19 @@
             md-label="Übersicht"
             to="/dashboard"
             :md-disabled="shouldDisableUiControls"
-          >
-          </md-tab>
+          ></md-tab>
           <md-tab
             id="tabBillings"
             md-label="Abrechnungen"
             to="/billings"
             :md-disabled="shouldDisableUiControls"
-          >
-          </md-tab>
+          ></md-tab>
           <md-tab
             id="tabSettings"
             md-label="Einstellungen"
             to="/settings"
             :md-disabled="shouldDisableUiControls"
-          >
-          </md-tab>
+          ></md-tab>
         </md-tabs>
       </div>
     </md-app-toolbar>
@@ -71,8 +68,8 @@
 
 <script>
 import { mapState } from "vuex";
-import { ActionType, MutationType, StateProperty } from "@/helper";
-import { auth } from "@/database";
+import { ActionType, MutationType, StateProperty } from "./helper";
+import { auth } from "./database";
 
 export default {
   name: "App",
@@ -89,7 +86,7 @@ export default {
       get() {
         return this[StateProperty.CURRENT_ERROR] !== null;
       },
-      set(newValue) {
+      set() {
         // Workaround, because VUE need a setter, but i didn't
       }
     },
