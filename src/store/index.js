@@ -18,7 +18,7 @@ const store = new Vuex.Store({
     currentSetting: null,
     currentBillings: null,
     currentBillingIntervals: null,
-    currentBillingCoveredDays: null,
+    currentBillingCoveredDays: {},
     currentSelectedBilling: null,
     currentBillingEntries: [],
     currentError: null,
@@ -32,7 +32,7 @@ const store = new Vuex.Store({
       commit(MutationType.SET_CURRENT_SETTING, null);
       commit(MutationType.SET_CURRENT_BILLINGS, null);
       commit(MutationType.SET_CURRENT_BILLING_INTERVALLS, null);
-      commit(MutationType.SET_CURRENT_BILLING_COVERED_DAYS, null);
+      commit(MutationType.SET_CURRENT_BILLING_COVERED_DAYS, {});
       commit(MutationType.SET_CURRENT_SELECTED_BILLING, null);
       commit(MutationType.SET_CURRENT_BILLING_ENTRIES, []);
       commit(MutationType.SET_CURRENT_ERROR, null);
