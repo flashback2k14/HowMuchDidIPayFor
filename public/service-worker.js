@@ -1,4 +1,4 @@
-const version = "1.2.0";
+const version = "1.2.2";
 const cacheName = `kep-app-${version}`;
 self.addEventListener("install", e => {
   e.waitUntil(
